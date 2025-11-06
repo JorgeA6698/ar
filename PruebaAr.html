@@ -11,14 +11,10 @@
   <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
 
   <script>
-    // Variable global para almacenar los mixers de animación
     const animationMixers = new Map();
     
-    // Componente personalizado para cambiar la textura del modelo GLTF
     AFRAME.registerComponent('change-flag-texture', {
-      schema: {
-        textureId: { type: 'string' }
-      },
+      schema: { textureId: { type: 'string' } },
       init: function() {
         const self = this;
         let attempts = 0;
@@ -29,10 +25,7 @@
           if (!textureId) return;
           
           const textureEl = document.querySelector(`#${textureId}`);
-          if (!textureEl) {
-            console.error(`Textura no encontrada: ${textureId}`);
-            return;
-          }
+          if (!textureEl) return;
           
           const model = self.el.getObject3D('mesh');
           if (!model && attempts < maxAttempts) {
@@ -41,12 +34,7 @@
             return;
           }
           
-          if (!model) {
-            console.error('No se pudo cargar el modelo');
-            return;
-          }
-          
-          let textureChanged = false;
+          if (!model) return;
           
           model.traverse((node) => {
             if (node.isMesh && node.material) {
@@ -73,16 +61,9 @@
                   node.material.map = texture;
                   node.material.needsUpdate = true;
                 }
-                
-                textureChanged = true;
-                console.log(`Textura cambiada a: ${textureId}`);
               }
             }
           });
-          
-          if (!textureChanged) {
-            console.warn(`No se encontró el material de la bandera para ${textureId}`);
-          }
         };
         
         this.el.addEventListener('model-loaded', tryChangeTexture);
@@ -90,36 +71,24 @@
       }
     });
     
-    // Componente personalizado para controlar la animación manualmente
     AFRAME.registerComponent('manual-animation', {
       init: function() {
         const el = this.el;
         const targetId = el.parentNode.getAttribute('id');
         
-        // Intentar múltiples veces hasta que el mixer esté disponible
         let attempts = 0;
-        const maxAttempts = 20;
-        
         const checkMixer = () => {
           const mixer = el.components['animation-mixer'];
-          
           if (mixer && mixer.mixer) {
-            // Pausar la animación al inicio
             mixer.mixer.timeScale = 0;
             animationMixers.set(targetId, mixer.mixer);
-            console.log(`✅ Animación pausada y registrada para ${targetId}`);
-          } else if (attempts < maxAttempts) {
+          } else if (attempts < 20) {
             attempts++;
             setTimeout(checkMixer, 200);
-          } else {
-            console.warn(`⚠️ No se pudo encontrar mixer para ${targetId}`);
           }
         };
         
-        // Esperar a que el modelo se cargue
-        el.addEventListener('model-loaded', () => {
-          setTimeout(checkMixer, 100);
-        });
+        el.addEventListener('model-loaded', () => setTimeout(checkMixer, 100));
       }
     });
   </script>
@@ -127,10 +96,7 @@
   <style>
     * {
       -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
       user-select: none;
-      -webkit-touch-callout: none;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -153,7 +119,6 @@
       z-index: 1;
     }
     
-    /* Botón de Home optimizado para móvil */
     #home-button {
       position: fixed !important;
       bottom: 15px !important;
@@ -171,8 +136,6 @@
       transition: transform 0.1s ease;
       text-decoration: none;
       pointer-events: auto !important;
-      margin: 0 !important;
-      padding: 0 !important;
     }
     
     #home-button:active {
@@ -184,35 +147,23 @@
       width: 26px;
       height: 26px;
       fill: #002868;
-      transition: fill 0.1s ease;
     }
     
     #home-button:active svg {
       fill: white;
     }
     
-    /* Contenedor de botones de acción */
     #button-container {
-      position: fixed;
-      bottom: 15px;
-      right: 15px;
-      z-index: 100000 !important;
+      position: fixed !important;
+      bottom: 15px !important;
+      right: 15px !important;
+      z-index: 999998 !important;
       display: flex !important;
-      flex-direction: column; 
-      visibility: hidden;
-      opacity: 0;
-      transition: opacity 0.3s ease;
+      flex-direction: column !important;
       gap: 10px;
-      pointer-events: none;
+      visibility: hidden;
     }
     
-    #button-container.visible {
-      visibility: visible !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-    }
-    
-    /* Botones de acción optimizados para móvil */
     .action-button {
       width: 55px;
       height: 55px;
@@ -236,82 +187,50 @@
       color: white;
     }
 
-    /* Botón de animación especial */
     #animate-button {
       background-color: rgba(0, 200, 0, 0.95);
       border-color: #006400;
       color: white;
-      font-size: 20px;
     }
 
     #animate-button:active {
       background-color: #006400;
     }
     
-    /* Estilos para el recuadro de escaneo */
-    .mindar-ui-scanning {
-      display: block !important;
-      transition: opacity 0.3s ease;
-      position: fixed !important;
-      top: 50% !important;
-      left: 40% !important;
-      transform: translate(-50%, -50%) !important;
-   
-    }
-    
-    .mindar-ui-scanning.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    
-    /* Debug en pantalla */
     #debug-info {
       position: fixed;
       top: 10px;
-      left: 10px;
-      background-color: rgba(0, 0, 0, 0.8);
-      color: #00ff00;
+      right: 10px;
+      background: rgba(0,0,0,0.8);
+      color: lime;
       padding: 10px;
       border-radius: 5px;
       font-family: monospace;
-      font-size: 12px;
-      z-index: 999998;
-      max-width: 90%;
+      font-size: 11px;
+      z-index: 999997;
+      max-width: 200px;
       pointer-events: none;
-    }
-    
-    #debug-info div {
-      margin: 2px 0;
-    }
-    canvas {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
     }
   </style>
 </head>
 <body>
 
-  <!-- Debug visual en pantalla -->
   <div id="debug-info">
-    <div id="debug-status">Iniciando...</div>
-    <div id="debug-targets">Targets: 0</div>
-    <div id="debug-buttons">Botones: ocultos</div>
-    <div id="debug-mixer">Mixer: N/A</div>
+    <div>Status: <span id="d-status">Cargando...</span></div>
+    <div>Targets: <span id="d-targets">0</span></div>
+    <div>Botones: <span id="d-buttons">ocultos</span></div>
   </div>
 
-  <a href="index.html" id="home-button" title="Volver al inicio" aria-label="Inicio">
+  <a href="index.html" id="home-button">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
       <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
     </svg>
   </a>
 
   <div id="button-container">
-    <button class="action-button" id="animate-button" aria-label="Animar bandera">▶️</button>
-    <button class="action-button" id="button2" aria-label="Información">📊</button>
-    <button class="action-button" id="button3" aria-label="Opciones">⚙️</button>
+    <button class="action-button" id="animate-button">▶️</button>
+    <button class="action-button" id="button2">📊</button>
+    <button class="action-button" id="button3">⚙️</button>
   </div>
 
   <a-scene
@@ -324,59 +243,41 @@
   >
     <a-assets>
       <a-asset-item id="flag-model" src="./mexico_flag/scene.gltf"></a-asset-item>
-
       <img id="mexico-texture" crossorigin="anonymous" src="./mexico_flag/textures/01_-_Default_baseColor.png">
       <img id="canada-texture" crossorigin="anonymous" src="./textures/canada_baseColor.png">
       <img id="usa-texture" crossorigin="anonymous" src="./textures/usa_basecolor.png">
-      
       <img id="argentina-texture" crossorigin="anonymous" src="./textures/argentina_basecolor.jpg">
       <img id="brasil-texture" crossorigin="anonymous" src="./textures/brasil_basecolor.jpg">
       <img id="colombia-texture" crossorigin="anonymous" src="./textures/colombia_basecolor.jpg">
       <img id="paraguay-texture" crossorigin="anonymous" src="./textures/paraguay_basecolor.jpg">
       <img id="ecuador-texture" crossorigin="anonymous" src="./textures/ecuador_basecolor.jpg">
       <img id="uruguay-texture" crossorigin="anonymous" src="./textures/uruguay_basecolor.jpg">
-      
       <img id="marruecos-texture" crossorigin="anonymous" src="./textures/marruecos_basecolor.jpg">
       <img id="tunez-texture" crossorigin="anonymous" src="./textures/tunez_basecolor.jpg">
-      
       <img id="australia-texture" crossorigin="anonymous" src="./textures/australia_basecolor.jpg">
       <img id="iran-texture" crossorigin="anonymous" src="./textures/iran_basecolor.png">
       <img id="japon-texture" crossorigin="anonymous" src="./textures/japon_basecolor.png">
       <img id="jordania-texture" crossorigin="anonymous" src="./textures/jordania_basecolor.png">
       <img id="coreadelsur-texture" crossorigin="anonymous" src="./textures/coreadelsur_basecolor.jpg">
       <img id="uzbekistan-texture" crossorigin="anonymous" src="./textures/Uzbekistan_basecolor.png">
-      
       <img id="nuevazelanda-texture" crossorigin="anonymous" src="./textures/nuevazelanda_basecolor.png">
     </a-assets>
-
     <a-camera position="0 0 0" look-controls="enabled: false" fov="65"></a-camera>
-
   </a-scene>
 
   <script>
-    // Sistema de debug visual
-    function updateDebug(key, value) {
-      const debugEl = document.getElementById(`debug-${key}`);
-      if (debugEl) {
-        debugEl.textContent = `${key}: ${value}`;
-      }
-    }
-    
+    const $ = (id) => document.getElementById(id);
+    const debug = (key, val) => {
+      const el = $(`d-${key}`);
+      if (el) el.textContent = val;
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
-      const sceneEl = document.querySelector('a-scene');
-      const buttonContainer = document.getElementById('button-container');
+      const sceneEl = $('ar-scene');
+      const buttonContainer = $('button-container');
       
-      updateDebug('status', 'Cargando escena...');
-      
-      // Verificar que los elementos existan
-      if (!buttonContainer) {
-        updateDebug('status', 'ERROR: buttonContainer no existe!');
-        return;
-      }
-      
-      updateDebug('status', 'Elementos encontrados');
-      
-      // Mapeo de índices a IDs de textura
+      debug('status', 'Inicializado');
+
       const targetMap = [
         { start: 0, end: 3, textureId: 'mexico-texture' },        
         { start: 4, end: 6, textureId: 'canada-texture' },        
@@ -398,20 +299,17 @@
         { start: 60, end: 63, textureId: 'nuevazelanda-texture' } 
       ];
 
-      function getTextureIdForIndex(index) {
+      const getTextureIdForIndex = (index) => {
         for (const map of targetMap) {
-          if (index >= map.start && index <= map.end) {
-            return map.textureId;
-          }
+          if (index >= map.start && index <= map.end) return map.textureId;
         }
         return null;
-      }
+      };
 
-      // Generar dinámicamente todos los targets
       const allTargets = [];
       for (let i = 0; i <= 63; i++) {
         const textureId = getTextureIdForIndex(i);
-        if (!textureId) continue; 
+        if (!textureId) continue;
 
         const targetEntity = document.createElement('a-entity');
         targetEntity.setAttribute('mindar-image-target', `targetIndex: ${i}`);
@@ -421,199 +319,72 @@
         flagModel.setAttribute('gltf-model', '#flag-model');
         flagModel.setAttribute('animation-mixer', '');
         flagModel.setAttribute('manual-animation', '');
-        
-        // Escala optimizada para móvil
-        flagModel.setAttribute('scale', '0.0005 0.0005 0.0005'); 
+        flagModel.setAttribute('scale', '0.0005 0.0005 0.0005');
         flagModel.setAttribute('position', '0 0 0');
-        flagModel.setAttribute('rotation', '0 0 0');
         flagModel.setAttribute('change-flag-texture', `textureId: ${textureId}`);
-        flagModel.setAttribute('data-target-index', i);
 
         targetEntity.appendChild(flagModel);
         sceneEl.appendChild(targetEntity);
-        allTargets.push(targetEntity);
+        allTargets.push({entity: targetEntity, index: i, id: `target-${i}`});
       }
-      
-      const activeTargets = new Set();
-      
-      // Controlar visibilidad del UI de escaneo
-      const updateScanningUI = () => {
-        const scanningUI = document.querySelector('.mindar-ui-scanning');
-        if (scanningUI) {
-          if (activeTargets.size === 0) {
-            scanningUI.classList.remove('hidden');
-            scanningUI.style.display = 'block';
-            scanningUI.style.opacity = '1';
-          } else {
-            scanningUI.classList.add('hidden');
-            scanningUI.style.opacity = '0';
-            setTimeout(() => {
-              if (activeTargets.size > 0) {
-                scanningUI.style.display = 'none';
-              }
-            }, 300);
-          }
-        }
-      };
-      
-      setInterval(() => {
-        const scanningUI = document.querySelector('.mindar-ui-scanning');
-        if (scanningUI && activeTargets.size === 0) {
-          scanningUI.style.display = 'block';
-          scanningUI.style.opacity = '1';
-        }
-      }, 500);
-      
-      // Lógica de targetFound/targetLost
+
       let isAnimating = false;
-      
-      allTargets.forEach((target) => {
-        const targetIndexMatch = target.getAttribute('mindar-image-target').match(/targetIndex: (\d+)/);
-        if (!targetIndexMatch) return;
-        const targetIndex = parseInt(targetIndexMatch[1]);
+      let currentVisibleTarget = null;
 
-        target.addEventListener('targetFound', () => {
-          const targetId = `target-${targetIndex}`;
-          activeTargets.add(targetIndex);
-          
-          updateDebug('status', `Target ${targetIndex} DETECTADO!`);
-          updateDebug('targets', activeTargets.size);
-          
-          // FORZAR visibilidad de botones de múltiples formas
-          buttonContainer.className = 'visible';
-          buttonContainer.style.visibility = 'visible';
-          buttonContainer.style.display = 'flex';
-          buttonContainer.style.opacity = '1';
-          buttonContainer.style.pointerEvents = 'auto';
-          buttonContainer.style.zIndex = '100000';
-          
-          updateDebug('buttons', 'VISIBLES');
-          
-          // Resetear estado de animación
-          isAnimating = false;
-          document.getElementById('animate-button').textContent = '▶️';
-          
-          // Verificar si el mixer está disponible
-          setTimeout(() => {
-            const mixer = animationMixers.get(targetId);
-            updateDebug('mixer', mixer ? 'DISPONIBLE' : 'NO DISPONIBLE');
-          }, 500);
-          
-          updateScanningUI();
-        });
-
-        target.addEventListener('targetLost', () => {
-          activeTargets.delete(targetIndex);
-          
-          updateDebug('status', `Target ${targetIndex} perdido`);
-          updateDebug('targets', activeTargets.size);
-          
-          if (activeTargets.size === 0) {
-            // Ocultar botones
-            buttonContainer.className = '';
-            buttonContainer.style.visibility = 'hidden';
-            buttonContainer.style.display = 'flex';
-            buttonContainer.style.opacity = '0';
-            buttonContainer.style.pointerEvents = 'none';
-            
-            updateDebug('buttons', 'ocultos');
-            
-            // Pausar animación
-            const targetId = `target-${targetIndex}`;
-            const mixer = animationMixers.get(targetId);
-            if (mixer) {
-              mixer.timeScale = 0;
-            }
-            isAnimating = false;
-            updateDebug('mixer', 'pausado');
-          }
-          updateScanningUI();
-        });
-      });
-      
-      // Funcionalidad del botón de animación
-      document.getElementById('animate-button').addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+      // POLLING - Verificar visibilidad cada 200ms
+      setInterval(() => {
+        let foundVisible = false;
         
-        updateDebug('status', 'Click en ANIMAR');
-        
-        if (activeTargets.size > 0) {
-          const activeTargetIndex = Array.from(activeTargets)[0];
-          const targetId = `target-${activeTargetIndex}`;
-          const mixer = animationMixers.get(targetId);
-          
-          if (mixer) {
-            if (!isAnimating) {
-              mixer.timeScale = 1;
-              isAnimating = true;
-              document.getElementById('animate-button').textContent = '⏸️';
-              updateDebug('mixer', 'REPRODUCIENDO');
-            } else {
-              mixer.timeScale = 0;
+        for (const target of allTargets) {
+          const flagEl = target.entity.querySelector('[gltf-model]');
+          if (flagEl && flagEl.object3D && flagEl.object3D.visible) {
+            foundVisible = true;
+            
+            if (currentVisibleTarget !== target.id) {
+              currentVisibleTarget = target.id;
+              debug('status', `Target ${target.index} VISIBLE`);
+              debug('targets', '1');
+              debug('buttons', 'VISIBLES');
+              
+              buttonContainer.style.visibility = 'visible';
               isAnimating = false;
-              document.getElementById('animate-button').textContent = '▶️';
-              updateDebug('mixer', 'PAUSADO');
+              $('animate-button').textContent = '▶️';
             }
-          } else {
-            updateDebug('mixer', 'ERROR: No disponible');
+            break;
           }
-        } else {
-          updateDebug('status', 'No hay targets activos');
         }
-      });
-      
-      // Otros botones
-      document.getElementById('button2').addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        updateDebug('status', 'Click en Botón 2');
-        alert('Información de la bandera');
-      });
-      
-      document.getElementById('button3').addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        updateDebug('status', 'Click en Botón 3');
-        alert('Más opciones');
-      });
-      
-      
-      // Prueba inicial - forzar botones visibles por 3 segundos para verificar
-      updateDebug('status', 'Prueba: mostrando botones 3s');
-      buttonContainer.style.visibility = 'visible';
-      buttonContainer.style.display = 'flex';
-      buttonContainer.style.opacity = '1';
-      buttonContainer.style.pointerEvents = 'auto';
-      
-      setTimeout(() => {
-        if (activeTargets.size === 0) {
+        
+        if (!foundVisible && currentVisibleTarget) {
+          currentVisibleTarget = null;
+          debug('status', 'Sin target');
+          debug('targets', '0');
+          debug('buttons', 'ocultos');
           buttonContainer.style.visibility = 'hidden';
-          buttonContainer.style.opacity = '0';
-          buttonContainer.style.pointerEvents = 'none';
-          updateDebug('status', 'Esperando target...');
+          isAnimating = false;
         }
-      }, 3000);
-      
-      // Asegurar visibilidad del botón home
-      const homeButton = document.getElementById('home-button');
-      if (homeButton) {
-        homeButton.style.visibility = 'visible';
-        homeButton.style.display = 'flex';
-        homeButton.style.position = 'fixed';
-        homeButton.style.zIndex = '999999';
-      }
-      
-      setTimeout(() => {
-        const scanningUI = document.querySelector('.mindar-ui-scanning');
-        if (scanningUI) {
-          scanningUI.style.position = 'fixed';
-          scanningUI.style.top = '50%';
-          scanningUI.style.left = '50%';
-          scanningUI.style.transform = 'translate(-50%, -50%)';
-          scanningUI.style.zIndex = '10000';
+      }, 200);
+
+      $('animate-button').addEventListener('click', () => {
+        if (!currentVisibleTarget) return;
+        
+        const mixer = animationMixers.get(currentVisibleTarget);
+        if (mixer) {
+          if (!isAnimating) {
+            mixer.timeScale = 1;
+            isAnimating = true;
+            $('animate-button').textContent = '⏸️';
+            debug('status', 'ANIMANDO');
+          } else {
+            mixer.timeScale = 0;
+            isAnimating = false;
+            $('animate-button').textContent = '▶️';
+            debug('status', 'PAUSADO');
+          }
         }
-      }, 1000);
+      });
+
+      $('button2').addEventListener('click', () => alert('Información'));
+      $('button3').addEventListener('click', () => alert('Opciones'));
     });
   </script>
 </body>
