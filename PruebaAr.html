@@ -108,7 +108,7 @@
       position: fixed;
       top: 0;
       left: 0;
-      z-index: 1; /* <-- CORRECCIÓN: Añadido para estar detrás del botón */
+      z-index: 1; 
     }
     
     /* Botón de Home */
@@ -125,7 +125,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      z-index: 999999 !important; /* <-- Este z-index alto asegura que esté al frente */
+      z-index: 999999 !important; 
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       transition: all 0.3s ease;
       text-decoration: none;
@@ -175,11 +175,11 @@
       pointer-events: none;
     }
     
-    /* --- CORRECCIÓN ---
-       Se eliminaron las reglas que ocultaban
-       .mindar-ui-container y .mindar-ui-overlay
-       para permitir que el cuadro de escaneo sea visible.
-    */
+    /* Ocultar los contenedores de la UI de MindAR (Bordes blancos) */
+    .mindar-ui-container,
+    .mindar-ui-overlay {
+      display: none !important;
+    }
     
     /* Asegurar que el canvas de AR ocupe toda la pantalla */
     canvas {
@@ -190,13 +190,42 @@
       height: 100% !important;
     }
     
+    /* === NUEVOS ESTILOS PARA BOTONES === */
+    
     /* Contenedor de botones */
     #button-container {
       position: fixed;
+      bottom: 20px;
+      right: 20px; /* Posicionado en la esquina inferior derecha */
       z-index: 10000;
+      display: flex;
+      flex-direction: column; /* Apila los botones verticalmente */
+      visibility: hidden; /* Oculto por defecto */
     }
     
-    /* ... (Estilos Omitidos) ... */
+    /* Estilo para todos los botones de acción */
+    .action-button {
+      width: 50px;
+      height: 50px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border: 2px solid #002868;
+      border-radius: 50%;
+      margin-top: 10px; /* Espacio entre botones */
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      font-size: 11px;
+      font-weight: bold;
+      color: #002868;
+      padding: 0;
+      line-height: 1;
+    }
+    
+    .action-button:hover {
+      background-color: white;
+      transform: scale(1.05);
+    }
+    /* === FIN DE NUEVOS ESTILOS === */
+    
   </style>
 </head>
 <body>
@@ -208,14 +237,15 @@
   </a>
 
   <div id="button-container">
+    <button class="action-button" id="animate-button">Animar</button>
+    
     <button class="action-button" id="button1"></button>
     <button class="action-button" id="button2"></button>
     <button class="action-button" id="button3"></button>
   </div>
-
   <a-scene
     id="ar-scene"
-    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 64; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
+    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false"
     embedded
@@ -256,6 +286,10 @@
     document.addEventListener('DOMContentLoaded', () => {
       const sceneEl = document.querySelector('a-scene');
       const buttonContainer = document.getElementById('button-container');
+      
+      // === NUEVA VARIABLE ===
+      // Guardará la referencia al modelo 3D que esté activo
+      let currentActiveModel = null;
       
       // Mapeo de índices a IDs de textura (RANGOS DE 0 a 63)
       const targetMap = [
@@ -309,10 +343,13 @@
         
         const flagModel = document.createElement('a-entity');
         flagModel.setAttribute('gltf-model', '#flag-model');
-        flagModel.setAttribute('animation-mixer', '');
+        
+        // === CAMBIO ===
+        // Se eliminó: flagModel.setAttribute('animation-mixer', '');
+        // El modelo cargará estático por defecto.
         
         // Escala muy pequeña
-        flagModel.setAttribute('scale', '0.0006 0.0006 0.0006'); 
+        flagModel.setAttribute('scale', '0.0001 0.0001 0.0001'); 
         
         // Posición centrada
         flagModel.setAttribute('position', '0 0 0');
@@ -368,17 +405,31 @@
           if (!targetIndexMatch) return;
           const targetIndex = parseInt(targetIndexMatch[1]);
 
+          // === LÓGICA MODIFICADA ===
           target.addEventListener('targetFound', () => {
               console.log(`Target ${targetIndex} found!`);
               activeTargets.add(targetIndex);
+              
+              // Guarda la referencia al modelo 3D de este target
+              currentActiveModel = target.querySelector('[gltf-model]'); 
+              
               buttonContainer.style.visibility = 'visible';
               updateScanningUI(); // Actualizar UI de escaneo
           });
   
+          // === LÓGICA MODIFICADA ===
           target.addEventListener('targetLost', () => {
               console.log(`Target ${targetIndex} lost!`);
               activeTargets.delete(targetIndex);
               
+              // Si el modelo que se perdió era el que estaba activo...
+              if (currentActiveModel) {
+                  // ...elimina el componente de animación para resetearlo
+                  currentActiveModel.removeAttribute('animation-mixer');
+              }
+              // Limpia la referencia
+              currentActiveModel = null; 
+
               if (activeTargets.size === 0) {
                   buttonContainer.style.visibility = 'hidden';
               }
@@ -386,7 +437,17 @@
           });
       });
       
-      // Funcionalidad de los botones
+      // === NUEVO LISTENER PARA EL BOTÓN DE ANIMACIÓN ===
+      document.getElementById('animate-button').addEventListener('click', () => {
+        // Si hay un modelo activo (visible)
+        if (currentActiveModel) {
+          // Añade el componente 'animation-mixer' para iniciar la animación
+          currentActiveModel.setAttribute('animation-mixer', '');
+          console.log('Iniciando animación');
+        }
+      });
+      
+      // Funcionalidad de los otros botones
       document.getElementById('button1').addEventListener('click', () => {
         alert('Botón 1 presionado!');
       });
@@ -416,12 +477,6 @@
           scanningUI.style.transform = 'translate(-50%, -50%)';
           scanningUI.style.zIndex = '10000';
         }
-        
-        /* --- CORRECCIÓN ---
-           Se eliminaron las líneas que ocultaban
-           .mindar-ui-container y .mindar-ui-overlay
-           para permitir que el cuadro de escaneo sea visible.
-        */
         
       }, 1000);
 
