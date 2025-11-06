@@ -196,7 +196,39 @@
       z-index: 10000;
     }
     
-    /* ... (Estilos Omitidos) ... */
+ /* Estilo para todos los botones de acción */
+.action-button {
+  width: 50px;
+  height: 50px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 2px solid #002868;
+  border-radius: 50%;
+  margin-top: 10px; /* Espacio entre botones */
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-size: 11px;
+  font-weight: bold;
+  color: #002868;
+  padding: 0;
+  line-height: 1;
+}
+
+.action-button:hover {
+  background-color: white;
+  transform: scale(1.05);
+}
+
+#button-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px; 
+  z-index: 10000;
+  display: flex;
+  flex-direction: column; 
+  visibility: hidden; /* Para ocultarlos hasta que se detecte un target */
+}
+
+
   </style>
 </head>
 <body>
