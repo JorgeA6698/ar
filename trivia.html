@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trivia - Mundial 2026</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: linear-gradient(135deg, #006341, #BF0A30, #002868);
+      color: white;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    h1 { font-size: 8vw; margin-bottom: 1rem; }
+    .trivia-container {
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 25px; border-radius: 15px; max-width: 800px; width: 90%;
+    }
+    .question { font-size: 5vw; margin-bottom: 25px; }
+    .options-container { display: flex; flex-direction: column; gap: 15px; }
+    .option-button {
+      background-color: white; color: #002868; text-decoration: none;
+      padding: 15px; border-radius: 25px; font-size: 4.5vw;
+      font-weight: bold; transition: 0.3s; border: none; cursor: pointer;
+    }
+    .option-button:hover { background-color: #FFD700; color: black; }
+    
+    .menu-icon {
+      position: fixed; top: 20px; right: 20px; z-index: 1001; cursor: pointer;
+    }
+    .menu-icon .bar {
+      width: 35px; height: 4px; background-color: white; margin: 6px 0; transition: 0.4s;
+    }
+
+    .side-nav {
+      height: 100%; width: 0; position: fixed; z-index: 1000; top: 0; right: 0;
+      background-color: rgba(0, 40, 104, 0.9);
+      overflow-x: hidden; transition: 0.5s; padding-top: 60px; text-align: center;
+    }
+    .side-nav a {
+      padding: 15px 25px; text-decoration: none; font-size: 6vw;
+      color: #ccc; display: block; transition: 0.3s;
+    }
+    .side-nav a:hover { color: #FFD700; }
+    .side-nav a.active { color: white; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="menu-icon" onclick="toggleNav()">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
+
+  <div id="mySidenav" class="side-nav">
+    <a href="index.html">Inicio</a>
+    <a href="video.html">Video</a>
+    <a href="estadisticas.html">Estadísticas</a>
+    <a href="trivia.html" class="active">Trivia</a>
+  </div>
+
+  <h1>Trivia del Mundial</h1>
+  <div class="trivia-container">
+    <p class="question">¿Qué país ha ganado más Copas del Mundo?</p>
+    <div class="options-container">
+      <button class="option-button">Alemania</button>
+      <button class="option-button">Argentina</button>
+      <button class="option-button">Brasil</button>
+    </div>
+  </div>
+
+  <script>
+    function toggleNav() {
+      var nav = document.getElementById("mySidenav");
+      nav.style.width = (nav.style.width === "250px") ? "0" : "250px";
+    }
+  </script>
+
+</body>
+</html>
