@@ -337,7 +337,7 @@
         
         for (const target of allTargets) {
           const flagEl = target.entity.querySelector('[gltf-model]');
-          if (flagEl && flagEl.object3D && flagEl.object3D.visible) {
+          if (flagEl && flagEl.object3D && flagEl.entity.object3D.visible) {
             foundVisible = true;
             
             if (currentVisibleTarget !== target.id) {
