@@ -265,127 +265,129 @@
     <a-camera position="0 0 0" look-controls="enabled: false" fov="65"></a-camera>
   </a-scene>
 
-  <script>
-    const $ = (id) => document.getElementById(id);
-    const debug = (key, val) => {
-      const el = $(`d-${key}`);
-      if (el) el.textContent = val;
-    };
+ <script>
+    const $ = (id) => document.getElementById(id);
+    const debug = (key, val) => {
+      const el = $(`d-${key}`);
+      if (el) el.textContent = val;
+    };
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const sceneEl = $('ar-scene');
-      const buttonContainer = $('button-container');
-      
-      debug('status', 'Inicializado');
+    document.addEventListener('DOMContentLoaded', () => {
+      const sceneEl = $('ar-scene');
+      const buttonContainer = $('button-container');
+      
+      debug('status', 'Inicializado');
 
-      const targetMap = [
-        { start: 0, end: 3, textureId: 'mexico-texture' },        
-        { start: 4, end: 6, textureId: 'canada-texture' },        
-        { start: 7, end: 9, textureId: 'usa-texture' },           
-        { start: 10, end: 12, textureId: 'argentina-texture' },   
-        { start: 13, end: 16, textureId: 'brasil-texture' },      
-        { start: 17, end: 21, textureId: 'colombia-texture' },    
-        { start: 22, end: 25, textureId: 'paraguay-texture' },    
-        { start: 26, end: 28, textureId: 'ecuador-texture' },     
-        { start: 29, end: 33, textureId: 'uruguay-texture' },     
-        { start: 34, end: 36, textureId: 'marruecos-texture' },   
-        { start: 37, end: 39, textureId: 'tunez-texture' },       
-        { start: 40, end: 42, textureId: 'australia-texture' },   
-        { start: 43, end: 45, textureId: 'iran-texture' },        
-        { start: 46, end: 49, textureId: 'japon-texture' },       
-        { start: 50, end: 53, textureId: 'jordania-texture' },    
-        { start: 54, end: 56, textureId: 'coreadelsur-texture' }, 
-        { start: 57, end: 59, textureId: 'uzbekistan-texture' },  
-        { start: 60, end: 63, textureId: 'nuevazelanda-texture' } 
-      ];
+      const targetMap = [
+        { start: 0, end: 3, textureId: 'mexico-texture' },        
+        { start: 4, end: 6, textureId: 'canada-texture' },        
+        { start: 7, end: 9, textureId: 'usa-texture' },           
+        { start: 10, end: 12, textureId: 'argentina-texture' },   
+        { start: 13, end: 16, textureId: 'brasil-texture' },      
+        { start: 17, end: 21, textureId: 'colombia-texture' },    
+        { start: 22, end: 25, textureId: 'paraguay-texture' },    
+        { start: 26, end: 28, textureId: 'ecuador-texture' },     
+        { start: 29, end: 33, textureId: 'uruguay-texture' },     
+        { start: 34, end: 36, textureId: 'marruecos-texture' },   
+        { start: 37, end: 39, textureId: 'tunez-texture' },       
+        { start: 40, end: 42, textureId: 'australia-texture' },   
+        { start: 43, end: 45, textureId: 'iran-texture' },        
+        { start: 46, end: 49, textureId: 'japon-texture' },       
+        { start: 50, end: 53, textureId: 'jordania-texture' },    
+        { start: 54, end: 56, textureId: 'coreadelsur-texture' }, 
+        { start: 57, end: 59, textureId: 'uzbekistan-texture' },  
+        { start: 60, end: 63, textureId: 'nuevazelanda-texture' } 
+      ];
 
-      const getTextureIdForIndex = (index) => {
-        for (const map of targetMap) {
-          if (index >= map.start && index <= map.end) return map.textureId;
-        }
-        return null;
-      };
+      const getTextureIdForIndex = (index) => {
+        for (const map of targetMap) {
+          if (index >= map.start && index <= map.end) return map.textureId;
+        }
+        return null;
+      };
 
-      const allTargets = [];
-      for (let i = 0; i <= 63; i++) {
-        const textureId = getTextureIdForIndex(i);
-        if (!textureId) continue;
+      const allTargets = [];
+      for (let i = 0; i <= 63; i++) {
+        const textureId = getTextureIdForIndex(i);
+        if (!textureId) continue;
 
-        const targetEntity = document.createElement('a-entity');
-        targetEntity.setAttribute('mindar-image-target', `targetIndex: ${i}`);
-        targetEntity.setAttribute('id', `target-${i}`);
-        
-        const flagModel = document.createElement('a-entity');
-        flagModel.setAttribute('gltf-model', '#flag-model');
-        flagModel.setAttribute('animation-mixer', '');
-        flagModel.setAttribute('manual-animation', '');
-        flagModel.setAttribute('scale', '0.0005 0.0005 0.0005');
-        flagModel.setAttribute('position', '0 0 0');
-        flagModel.setAttribute('change-flag-texture', `textureId: ${textureId}`);
+        const targetEntity = document.createElement('a-entity');
+        targetEntity.setAttribute('mindar-image-target', `targetIndex: ${i}`);
+        targetEntity.setAttribute('id', `target-${i}`);
+        
+        const flagModel = document.createElement('a-entity');
+        flagModel.setAttribute('gltf-model', '#flag-model');
+        flagModel.setAttribute('animation-mixer', '');
+        flagModel.setAttribute('manual-animation', '');
+        flagModel.setAttribute('scale', '0.0005 0.0005 0.0005');
+        flagModel.setAttribute('position', '0 0 0');
+        flagModel.setAttribute('change-flag-texture', `textureId: ${textureId}`);
 
-        targetEntity.appendChild(flagModel);
-        sceneEl.appendChild(targetEntity);
-        allTargets.push({entity: targetEntity, index: i, id: `target-${i}`});
-      }
+        targetEntity.appendChild(flagModel);
+        sceneEl.appendChild(targetEntity);
+        allTargets.push({entity: targetEntity, index: i, id: `target-${i}`});
+      }
 
-      let isAnimating = false;
-      let currentVisibleTarget = null;
+      let isAnimating = false;
+      let currentVisibleTarget = null;
 
-      // POLLING - Verificar visibilidad cada 200ms
-      setInterval(() => {
-        let foundVisible = false;
-        
-        for (const target of allTargets) {
-          const flagEl = target.entity.querySelector('[gltf-model]');
-          if (flagEl && flagEl.object3D && flagEl.entity.object3D.visible) {
-            foundVisible = true;
-            
-            if (currentVisibleTarget !== target.id) {
-              currentVisibleTarget = target.id;
-              debug('status', `Target ${target.index} VISIBLE`);
-              debug('targets', '1');
-              debug('buttons', 'VISIBLES');
-              
-              buttonContainer.style.visibility = 'visible';
-              isAnimating = false;
-              $('animate-button').textContent = '▶️';
-            }
-            break;
-          }
-        }
-        
-        if (!foundVisible && currentVisibleTarget) {
-          currentVisibleTarget = null;
-          debug('status', 'Sin target');
-          debug('targets', '0');
-          debug('buttons', 'ocultos');
-          buttonContainer.style.visibility = 'hidden';
-          isAnimating = false;
-        }
-      }, 200);
+      /* === INICIO DE LA CORRECCIÓN === */
+      // Se elimina el 'setInterval' y se usan los eventos de MindAR
+      
+      allTargets.forEach((target) => {
+        // Evento cuando se ENCUENTRA un target
+        target.entity.addEventListener('targetFound', () => {
+          currentVisibleTarget = target.id; // Guarda el ID del target visible
+          debug('status', `Target ${target.index} ENCONTRADO`);
+          debug('targets', '1');
+          debug('buttons', 'VISIBLES');
+          
+          buttonContainer.style.visibility = 'visible'; // Muestra los botones
+          isAnimating = false; // Resetea la animación
+          $('animate-button').textContent = '▶️';
+        });
 
-      $('animate-button').addEventListener('click', () => {
-        if (!currentVisibleTarget) return;
-        
-        const mixer = animationMixers.get(currentVisibleTarget);
-        if (mixer) {
-          if (!isAnimating) {
-            mixer.timeScale = 1;
-            isAnimating = true;
-            $('animate-button').textContent = '⏸️';
-            debug('status', 'ANIMANDO');
-          } else {
-            mixer.timeScale = 0;
-            isAnimating = false;
-            $('animate-button').textContent = '▶️';
-            debug('status', 'PAUSADO');
-          }
-        }
-      });
+        // Evento cuando se PIERDE un target
+        target.entity.addEventListener('targetLost', () => {
+          // Solo nos importa si el target que se perdió es el que estaba activo
+          if (currentVisibleTarget === target.id) {
+            currentVisibleTarget = null; // Limpia la variable
+            debug('status', 'Sin target');
+            debug('targets', '0');
+            debug('buttons', 'ocultos');
+            buttonContainer.style.visibility = 'hidden'; // Oculta los botones
+            isAnimating = false;
+          }
+        });
+      });
+      /* === FIN DE LA CORRECCIÓN === */
 
-      $('button2').addEventListener('click', () => alert('Información'));
-      $('button3').addEventListener('click', () => alert('Opciones'));
-    });
-  </script>
+
+      $('animate-button').addEventListener('click', () => {
+        if (!currentVisibleTarget) return; // No hacer nada si no hay target
+        
+        // Buscar el mixer de animación del target que está visible
+        const mixer = animationMixers.get(currentVisibleTarget);
+        if (mixer) {
+          if (!isAnimating) {
+            mixer.timeScale = 1; // Reanudar
+            isAnimating = true;
+            $('animate-button').textContent = '⏸️';
+            debug('status', 'ANIMANDO');
+          } else {
+            mixer.timeScale = 0; // Pausar
+            isAnimating = false;
+            $('animate-button').textContent = '▶️';
+            debug('status', 'PAUSADO');
+          }
+        } else {
+          debug('status', 'Error: Mixer no encontrado');
+        }
+      });
+
+      $('button2').addEventListener('click', () => alert('Información'));
+      $('button3').addEventListener('click', () => alert('Opciones'));
+    });
+  </script>
 </body>
 </html>
