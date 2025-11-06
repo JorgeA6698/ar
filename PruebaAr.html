@@ -190,7 +190,7 @@
       z-index: 100000;
       display: flex;
       flex-direction: Row; 
-      visibility: show ;
+      visibility: hidden ;
       gap: 15px;
     }
     
@@ -444,7 +444,7 @@
           
           if (mixer) {
             if (!isAnimating) {
-              mixer.timeScale = 1;
+              mixer.timeScale = 0.0005;
               isAnimating = true;
               document.getElementById('animate-button').textContent = '⏸️';
               console.log('Animación iniciada');
