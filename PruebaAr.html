@@ -108,7 +108,8 @@
       position: fixed;
       top: 0;
       left: 0;
-      z-index: 1; /* <-- CORRECCIÓN: Añadido para estar detrás del botón */
+      /* CORRECCIÓN BOTÓN HOME: z-index bajo para estar detrás del botón */
+      z-index: 1; 
     }
     
     /* Botón de Home */
@@ -125,7 +126,8 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      z-index: 999999 !important; /* <-- Este z-index alto asegura que esté al frente */
+      /* CORRECCIÓN BOTÓN HOME: z-index alto para estar al frente */
+      z-index: 999999 !important; 
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       transition: all 0.3s ease;
       text-decoration: none;
@@ -175,11 +177,13 @@
       pointer-events: none;
     }
     
-    /* --- CORRECCIÓN ---
-       Se eliminaron las reglas que ocultaban
-       .mindar-ui-container y .mindar-ui-overlay
-       para permitir que el cuadro de escaneo sea visible.
+    /* CORRECCIÓN BORDES BLANCOS: 
+       Ocultar los contenedores de la UI de MindAR 
     */
+    .mindar-ui-container,
+    .mindar-ui-overlay {
+      display: none !important;
+    }
     
     /* Asegurar que el canvas de AR ocupe toda la pantalla */
     canvas {
@@ -215,7 +219,11 @@
 
   <a-scene
     id="ar-scene"
-    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 64; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
+    
+    removido: maxTrack: 64
+    agregado: maxTrack: 1
+    
+    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false"
     embedded
@@ -312,7 +320,7 @@
         flagModel.setAttribute('animation-mixer', '');
         
         // Escala muy pequeña
-        flagModel.setAttribute('scale', '0.0001 0.0001 0.0001'); 
+        flagModel.setAttribute('scale', '0.005 0.005 0.005'); 
         
         // Posición centrada
         flagModel.setAttribute('position', '0 0 0');
@@ -416,12 +424,6 @@
           scanningUI.style.transform = 'translate(-50%, -50%)';
           scanningUI.style.zIndex = '10000';
         }
-        
-        /* --- CORRECCIÓN ---
-           Se eliminaron las líneas que ocultaban
-           .mindar-ui-container y .mindar-ui-overlay
-           para permitir que el cuadro de escaneo sea visible.
-        */
         
       }, 1000);
 
