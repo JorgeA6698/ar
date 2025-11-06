@@ -11,6 +11,9 @@
   <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
 
   <script>
+    // Variable global para almacenar los mixers de animación
+    const animationMixers = new Map();
+    
     // Componente personalizado para cambiar la textura del modelo GLTF
     AFRAME.registerComponent('change-flag-texture', {
       schema: {
@@ -91,6 +94,28 @@
         
         // También intentar después de un pequeño delay como respaldo
         setTimeout(tryChangeTexture, 500);
+      }
+    });
+    
+    // Componente personalizado para controlar la animación manualmente
+    AFRAME.registerComponent('manual-animation', {
+      init: function() {
+        const el = this.el;
+        const targetId = el.parentNode.getAttribute('id');
+        
+        el.addEventListener('model-loaded', () => {
+          const model = el.getObject3D('mesh');
+          if (!model) return;
+          
+          // Buscar el mixer de animación
+          const mixer = el.components['animation-mixer'];
+          if (mixer && mixer.mixer) {
+            // Pausar la animación al inicio
+            mixer.mixer.timeScale = 0;
+            animationMixers.set(targetId, mixer.mixer);
+            console.log(`Animación pausada para ${targetId}`);
+          }
+        });
       }
     });
   </script>
@@ -198,24 +223,31 @@
     
  /* Estilo para todos los botones de acción */
 .action-button {
-  width: 50px;
-  height: 50px;
-  background-color: rgba(255, 255, 255, 0.8);
-  border: 2px solid #002868;
+  width: 60px;
+  height: 60px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 3px solid #002868;
   border-radius: 50%;
   margin-top: 10px; /* Espacio entre botones */
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  font-size: 11px;
-  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-size: 24px;
   color: #002868;
   padding: 0;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
 }
 
 .action-button:hover {
-  background-color: white;
-  transform: scale(1.05);
+  background-color: #002868;
+  transform: scale(1.1);
+}
+
+.action-button:hover {
+  color: white;
 }
 
 #button-container {
@@ -228,6 +260,15 @@
   visibility: hidden; /* Para ocultarlos hasta que se detecte un target */
 }
 
+/* Botón de animación especial */
+#animate-button {
+  background-color: rgba(0, 200, 0, 0.9);
+  border-color: #006400;
+}
+
+#animate-button:hover {
+  background-color: #006400;
+}
 
   </style>
 </head>
@@ -240,9 +281,9 @@
   </a>
 
   <div id="button-container">
-    <button class="action-button" id="button1"></button>
-    <button class="action-button" id="button2"></button>
-    <button class="action-button" id="button3"></button>
+    <button class="action-button" id="animate-button" title="Reproducir animación">▶️</button>
+    <button class="action-button" id="button2" title="Botón 2">2</button>
+    <button class="action-button" id="button3" title="Botón 3">3</button>
   </div>
 
   <a-scene
@@ -342,6 +383,7 @@
         const flagModel = document.createElement('a-entity');
         flagModel.setAttribute('gltf-model', '#flag-model');
         flagModel.setAttribute('animation-mixer', '');
+        flagModel.setAttribute('manual-animation', ''); // Añadir control manual
         
         // Escala muy pequeña
         flagModel.setAttribute('scale', '0.0006 0.0006 0.0006'); 
@@ -404,6 +446,8 @@
               console.log(`Target ${targetIndex} found!`);
               activeTargets.add(targetIndex);
               buttonContainer.style.visibility = 'visible';
+              isAnimating = false; // Resetear estado de animación
+              document.getElementById('animate-button').textContent = '▶️';
               updateScanningUI(); // Actualizar UI de escaneo
           });
   
@@ -413,15 +457,46 @@
               
               if (activeTargets.size === 0) {
                   buttonContainer.style.visibility = 'hidden';
+                  // Pausar animación al perder el target
+                  const targetId = `target-${targetIndex}`;
+                  const mixer = animationMixers.get(targetId);
+                  if (mixer) {
+                    mixer.timeScale = 0;
+                  }
+                  isAnimating = false;
               }
               updateScanningUI(); // Actualizar UI de escaneo
           });
       });
       
-      // Funcionalidad de los botones
-      document.getElementById('button1').addEventListener('click', () => {
-        alert('Botón 1 presionado!');
+      // Funcionalidad del botón de animación
+      let isAnimating = false;
+      document.getElementById('animate-button').addEventListener('click', () => {
+        // Obtener el target activo
+        if (activeTargets.size > 0) {
+          const activeTargetIndex = Array.from(activeTargets)[0];
+          const targetId = `target-${activeTargetIndex}`;
+          const mixer = animationMixers.get(targetId);
+          
+          if (mixer) {
+            if (!isAnimating) {
+              // Iniciar animación
+              mixer.timeScale = 1;
+              isAnimating = true;
+              document.getElementById('animate-button').textContent = '⏸️';
+              console.log('Animación iniciada');
+            } else {
+              // Pausar animación
+              mixer.timeScale = 0;
+              isAnimating = false;
+              document.getElementById('animate-button').textContent = '▶️';
+              console.log('Animación pausada');
+            }
+          }
+        }
       });
+      
+      // Funcionalidad de los otros botones
       document.getElementById('button2').addEventListener('click', () => {
         alert('Botón 2 presionado!');
       });
