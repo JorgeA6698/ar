@@ -1,496 +1,431 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AR con MindAR y Modelo 3D (Múltiples Banderas)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AR con MindAR y Modelo 3D (Múltiples Banderas)</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image.prod.js"></script>
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image-aframe.prod.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image.prod.js"></script>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
 
-  <script>
-    // Componente personalizado para cambiar la textura del modelo GLTF
-    AFRAME.registerComponent('change-flag-texture', {
-      schema: {
-        textureId: { type: 'string' }
-      },
-      init: function() {
-        const self = this;
-        let attempts = 0;
-        const maxAttempts = 10;
-        
-        const tryChangeTexture = () => {
-          const textureId = self.data.textureId;
-          if (!textureId) return;
-          
-          const textureEl = document.querySelector(`#${textureId}`);
-          if (!textureEl) {
-            console.error(`Textura no encontrada: ${textureId}`);
-            return;
-          }
-          
-          const model = self.el.getObject3D('mesh');
-           if (!model && attempts < maxAttempts) {
-            attempts++;
-            setTimeout(tryChangeTexture, 200);
-            return;
-          }
-          
-          if (!model) {
-            console.error('No se pudo cargar el modelo');
-            return;
-          }
-          
-          let textureChanged = false;
-          
-          // Buscar el mesh con el material '01_-_Default'
-          model.traverse((node) => {
-            if (node.isMesh && node.material) {
-              // Si el material es el de la bandera
-              if (node.material.name === '01_-_Default' || 
-                  (node.material.map && node.material.map.name && 
-                   node.material.map.name.includes('Default_baseColor'))) {
-                
-                // Crear nueva textura desde el elemento img
-                const texture = new THREE.Texture(textureEl);
-                texture.needsUpdate = true;
-                texture.wrapS = THREE.RepeatWrapping;
-                texture.wrapT = THREE.RepeatWrapping;
-                texture.anisotropy = 16; // Mejor calidad
-                
-                // Clonar el material para esta instancia específica
-                if (Array.isArray(node.material)) {
-                  node.material = node.material.map(mat => mat.clone());
-                  node.material.forEach(mat => {
-                    if (mat.map) {
-                      mat.map = texture;
-                      mat.needsUpdate = true;
-                    }
-                  });
-                } else {
-                  node.material = node.material.clone();
-                  node.material.map = texture;
-                  node.material.needsUpdate = true;
-                }
-                
-                textureChanged = true;
-                console.log(`Textura cambiada a: ${textureId} para target ${self.el.parentNode.getAttribute('id')}`);
-              }
-            }
-          });
-          
-          if (!textureChanged) {
-            console.warn(`No se encontró el material de la bandera para ${textureId}`);
-          }
-        };
-        
-        // Intentar cambiar la textura cuando el modelo se carga
-        this.el.addEventListener('model-loaded', tryChangeTexture);
-        
-        // También intentar después de un pequeño delay como respaldo
-        setTimeout(tryChangeTexture, 500);
-      }
-    });
-  </script>
+  <script>
+    // Componente personalizado para cambiar la textura del modelo GLTF
+    AFRAME.registerComponent('change-flag-texture', {
+      schema: {
+        textureId: { type: 'string' }
+      },
+      init: function() {
+        const self = this;
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        const tryChangeTexture = () => {
+          const textureId = self.data.textureId;
+          if (!textureId) return;
+          
+          const textureEl = document.querySelector(`#${textureId}`);
+          if (!textureEl) {
+            console.error(`Textura no encontrada: ${textureId}`);
+            return;
+          }
+          
+          const model = self.el.getObject3D('mesh');
+          if (!model && attempts < maxAttempts) {
+            attempts++;
+            setTimeout(tryChangeTexture, 200);
+            return;
+          }
+          
+          if (!model) {
+            console.error('No se pudo cargar el modelo');
+            return;
+          }
+          
+          let textureChanged = false;
+          
+          // Buscar el mesh con el material '01_-_Default'
+          model.traverse((node) => {
+            if (node.isMesh && node.material) {
+              // Si el material es el de la bandera
+              if (node.material.name === '01_-_Default' || 
+                  (node.material.map && node.material.map.name && 
+                   node.material.map.name.includes('Default_baseColor'))) {
+                
+                // Crear nueva textura desde el elemento img
+                const texture = new THREE.Texture(textureEl);
+                texture.needsUpdate = true;
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.anisotropy = 16; // Mejor calidad
+                
+                // Clonar el material para esta instancia específica
+                if (Array.isArray(node.material)) {
+                  node.material = node.material.map(mat => mat.clone());
+                  node.material.forEach(mat => {
+                    if (mat.map) {
+                      mat.map = texture;
+                      mat.needsUpdate = true;
+                    }
+                  });
+                } else {
+                  node.material = node.material.clone();
+                  node.material.map = texture;
+                  node.material.needsUpdate = true;
+                }
+                
+                textureChanged = true;
+                console.log(`Textura cambiada a: ${textureId} para target ${self.el.parentNode.getAttribute('id')}`);
+              }
+            }
+          });
+          
+          if (!textureChanged) {
+            console.warn(`No se encontró el material de la bandera para ${textureId}`);
+          }
+        };
+        
+        // Intentar cambiar la textura cuando el modelo se carga
+        this.el.addEventListener('model-loaded', tryChangeTexture);
+        
+        // También intentar después de un pequeño delay como respaldo
+        setTimeout(tryChangeTexture, 500);
+      }
+    });
+  </script>
 
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      width: 100%;
-      height: 100vh;
-    }
-    #ar-scene {
-      width: 100%;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 1; /* <-- CORRECTO */
-    }
-    
-    /* Botón de Home */
-    #home-button {
-      position: fixed !important;
-      bottom: 20px !important;
-      left: 20px !important;
-      width: 60px;
-      height: 60px;
-      background-color: rgba(255, 255, 255, 0.9);
-      border: 3px solid #002868;
-      border-radius: 50%;
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 999999 !important; /* <-- CORRECTO */
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s ease;
-      text-decoration: none;
-      pointer-events: auto !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-    
-    #home-button:hover {
-      background-color: #002868;
-      transform: scale(1.1);
-    }
-    
-    #home-button:active {
-      transform: scale(0.95);
-    }
-    
-    #home-button svg {
-      width: 32px;
-      height: 32px;
-      fill: #002868;
-      transition: fill 0.3s ease;
-    }
-    
-    #home-button:hover svg {
-      fill: white;
-    }
-    
-    /* Asegurar que el botón siempre esté visible */
-    body > #home-button {
-      visibility: visible !important;
-      opacity: 1 !important;
-    }
-    
-    /* Estilos para el recuadro de escaneo de MindAR */
-    .mindar-ui-scanning {
-      display: block !important;
-      transition: opacity 0.3s ease;
-      position: fixed !important;
-      top: 50% !important;
-      left: 50% !important;
-      transform: translate(-50%, -50%) !important;
-    }
-    
-    .mindar-ui-scanning.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    
-    /* --- CORRECCIÓN ---
-       Añadido de nuevo para ocultar los bordes blancos
-    */
-    .mindar-ui-container,
-    .mindar-ui-overlay {
-      display: none !important;
-    }
-    
-    /* Asegurar que el canvas de AR ocupe toda la pantalla */
-    canvas {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-    }
-    
-    /* === CAMBIO ===
-       Estilos mejorados para el contenedor de botones
-    */
-    #button-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px; /* Posicionado en la esquina inferior derecha */
-      z-index: 10000;
-      display: flex;
-      flex-direction: column; /* Apila los botones verticalmente */
-      visibility: hidden; /* Oculto por defecto */
-    }
-
-    /* === CAMBIO ===
-       Añadido estilo para los botones de acción
-    */
-    .action-button {
-      width: 50px;
-      height: 50px;
-      background-color: rgba(255, 255, 255, 0.8);
-      border: 2px solid #002868;
-      border-radius: 50%;
-      margin-top: 10px; /* Espacio entre botones */
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      font-size: 11px;
-      font-weight: bold;
-      /* --- CORRECCIÓN --- 
-         Se eliminó la 's' que causaba el error 
-      */
-      color: #002868;
-      padding: 0;
-      line-height: 1;
-    }
-    
-    .action-button:hover {
-      background-color: white;
-      transform: scale(1.05);
-    }
-  </style>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      width: 100%;
+      height: 100vh;
+    }
+    #ar-scene {
+      width: 100%;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1; /* <-- CORRECCIÓN: Añadido para estar detrás del botón */
+    }
+    
+    /* Botón de Home */
+    #home-button {
+      position: fixed !important;
+      bottom: 20px !important;
+      left: 20px !important;
+      width: 60px;
+      height: 60px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border: 3px solid #002868;
+      border-radius: 50%;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 999999 !important; /* <-- Este z-index alto asegura que esté al frente */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      pointer-events: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    #home-button:hover {
+      background-color: #002868;
+      transform: scale(1.1);
+    }
+    
+    #home-button:active {
+      transform: scale(0.95);
+    }
+    
+    #home-button svg {
+      width: 32px;
+      height: 32px;
+      fill: #002868;
+      transition: fill 0.3s ease;
+    }
+    
+    #home-button:hover svg {
+      fill: white;
+    }
+    
+    /* Asegurar que el botón siempre esté visible */
+    body > #home-button {
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    
+    /* Estilos para el recuadro de escaneo de MindAR */
+    .mindar-ui-scanning {
+      display: block !important;
+      transition: opacity 0.3s ease;
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+    }
+    
+    .mindar-ui-scanning.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    /* --- CORRECCIÓN ---
+       Se eliminaron las reglas que ocultaban
+       .mindar-ui-container y .mindar-ui-overlay
+       para permitir que el cuadro de escaneo sea visible.
+    */
+    
+    /* Asegurar que el canvas de AR ocupe toda la pantalla */
+    canvas {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    /* Contenedor de botones */
+    #button-container {
+      position: fixed;
+      z-index: 10000;
+    }
+    
+    /* ... (Estilos Omitidos) ... */
+  </style>
 </head>
 <body>
 
-  <a href="index.html" id="home-button" title="Volver al inicio">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-    </svg>
-  </a>
+  <a href="index.html" id="home-button" title="Volver al inicio">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+    </svg>
+  </a>
 
-    <div id="button-container">
-    <button class="action-button" id="animate-button">Animar</button>
-    <button class="action-button" id="button1"></button>
-    <button class="action-button" id="button2"></button>
-    <button class="action-button" id="button3"></button>
-  </div>
+  <div id="button-container">
+    <button class="action-button" id="button1"></button>
+    <button class="action-button" id="button2"></button>
+    <button class="action-button" id="button3"></button>
+  </div>
 
-  <a-scene
-    id="ar-scene"
-    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 64; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false"
-    embedded
-    renderer="colorManagement: true; physicallyCorrectLights: true;"
-  >
-    <a-assets>
-      <a-asset-item id="flag-model" src="./mexico_flag/scene.gltf"></a-asset-item>
+  <a-scene
+    id="ar-scene"
+    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 64; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+    embedded
+    renderer="colorManagement: true; physicallyCorrectLights: true;"
+  >
+    <a-assets>
+      <a-asset-item id="flag-model" src="./mexico_flag/scene.gltf"></a-asset-item>
 
-      <img id="mexico-texture" crossorigin="anonymous" src="./mexico_flag/textures/01_-_Default_baseColor.png">
-      <img id="canada-texture" crossorigin="anonymous" src="./textures/canada_baseColor.png">
-      <img id="usa-texture" crossorigin="anonymous" src="./textures/usa_basecolor.png">
-      
-      <img id="argentina-texture" crossorigin="anonymous" src="./textures/argentina_basecolor.jpg">
-      <img id="brasil-texture" crossorigin="anonymous" src="./textures/brasil_basecolor.jpg">
-      <img id="colombia-texture" crossorigin="anonymous" src="./textures/colombia_basecolor.jpg">
-      <img id="paraguay-texture" crossorigin="anonymous" src="./textures/paraguay_basecolor.jpg">
-      <img id="ecuador-texture" crossorigin="anonymous" src="./textures/ecuador_basecolor.jpg">
-      <img id="uruguay-texture" crossorigin="anonymous" src="./textures/uruguay_basecolor.jpg">
-      
-      <img id="marruecos-texture" crossorigin="anonymous" src="./textures/marruecos_basecolor.jpg">
-      <img id="tunez-texture" crossorigin="anonymous" src="./textures/tunez_basecolor.jpg">
-      
-      <img id="australia-texture" crossorigin="anonymous" src="./textures/australia_basecolor.jpg">
-      <img id="iran-texture" crossorigin="anonymous" src="./textures/iran_basecolor.png">
-      <img id="japon-texture" crossorigin="anonymous" src="./textures/japon_basecolor.png">
-      <img id="jordania-texture" crossorigin="anonymous" src="./textures/jordania_basecolor.png">
-      <img id="coreadelsur-texture" crossorigin="anonymous" src="./textures/coreadelsur_basecolor.jpg">
-      <img id="uzbekistan-texture" crossorigin="anonymous" src="./textures/Uzbekistan_basecolor.png">
-      
-      <img id="nuevazelanda-texture" crossorigin="anonymous" src="./textures/nuevazelanda_basecolor.png">
-    </a-assets>
+      <img id="mexico-texture" crossorigin="anonymous" src="./mexico_flag/textures/01_-_Default_baseColor.png">
+      <img id="canada-texture" crossorigin="anonymous" src="./textures/canada_baseColor.png">
+      <img id="usa-texture" crossorigin="anonymous" src="./textures/usa_basecolor.png">
+      
+      <img id="argentina-texture" crossorigin="anonymous" src="./textures/argentina_basecolor.jpg">
+      <img id="brasil-texture" crossorigin="anonymous" src="./textures/brasil_basecolor.jpg">
+      <img id="colombia-texture" crossorigin="anonymous" src="./textures/colombia_basecolor.jpg">
+      <img id="paraguay-texture" crossorigin="anonymous" src="./textures/paraguay_basecolor.jpg">
+      <img id="ecuador-texture" crossorigin="anonymous" src="./textures/ecuador_basecolor.jpg">
+      <img id="uruguay-texture" crossorigin="anonymous" src="./textures/uruguay_basecolor.jpg">
+      
+      <img id="marruecos-texture" crossorigin="anonymous" src="./textures/marruecos_basecolor.jpg">
+      <img id="tunez-texture" crossorigin="anonymous" src="./textures/tunez_basecolor.jpg">
+      
+      <img id="australia-texture" crossorigin="anonymous" src="./textures/australia_basecolor.jpg">
+      <img id="iran-texture" crossorigin="anonymous" src="./textures/iran_basecolor.png">
+      <img id="japon-texture" crossorigin="anonymous" src="./textures/japon_basecolor.png">
+      <img id="jordania-texture" crossorigin="anonymous" src="./textures/jordania_basecolor.png">
+      <img id="coreadelsur-texture" crossorigin="anonymous" src="./textures/coreadelsur_basecolor.jpg">
+      <img id="uzbekistan-texture" crossorigin="anonymous" src="./textures/Uzbekistan_basecolor.png">
+      
+      <img id="nuevazelanda-texture" crossorigin="anonymous" src="./textures/nuevazelanda_basecolor.png">
+    </a-assets>
 
-    <a-camera position="0 0 0" look-controls="enabled: false" fov="60"></a-camera>
+    <a-camera position="0 0 0" look-controls="enabled: false" fov="60"></a-camera>
 
-    </a-scene>
+    </a-scene>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const sceneEl = document.querySelector('a-scene');
-      const buttonContainer = document.getElementById('button-container');
-      
-      // === CAMBIO === 
-      // Usamos un Map para guardar TODOS los modelos activos (ya que maxTrack es 64)
-      const activeModels = new Map();
-      
-      // Mapeo de índices a IDs de textura (RANGOS DE 0 a 63)
-      const targetMap = [
-        // CONCACAF 
-        { start: 0, end: 3, textureId: 'mexico-texture' },        
-        { start: 4, end: 6, textureId: 'canada-texture' },        
-        { start: 7, end: 9, textureId: 'usa-texture' },           
-        
-        // CONMEBOL 
-        { start: 10, end: 12, textureId: 'argentina-texture' },   
-        { start: 13, end: 16, textureId: 'brasil-texture' },      
-        { start: 17, end: 21, textureId: 'colombia-texture' },    
-        { start: 22, end: 25, textureId: 'paraguay-texture' },    
-        { start: 26, end: 28, textureId: 'ecuador-texture' },     
-        { start: 29, end: 33, textureId: 'uruguay-texture' },     
-        
-        // ÁFRICA 
-        { start: 34, end: 36, textureId: 'marruecos-texture' },   
-        { start: 37, end: 39, textureId: 'tunez-texture' },       
-        
-        // ASIA 
-        { start: 40, end: 42, textureId: 'australia-texture' },   
-        { start: 43, end: 45, textureId: 'iran-texture' },        
-        { start: 46, end: 49, textureId: 'japon-texture' },       
-        { start: 50, end: 53, textureId: 'jordania-texture' },    
-        { start: 54, end: 56, textureId: 'coreadelsur-texture' }, 
-        { start: 57, end: 59, textureId: 'uzbekistan-texture' },  
-        
-        // OFC 
-        { start: 60, end: 63, textureId: 'nuevazelanda-texture' } 
-      ];
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sceneEl = document.querySelector('a-scene');
+      const buttonContainer = document.getElementById('button-container');
+      
+      // Mapeo de índices a IDs de textura (RANGOS DE 0 a 63)
+      const targetMap = [
+        // CONCACAF 
+        { start: 0, end: 3, textureId: 'mexico-texture' },        
+        { start: 4, end: 6, textureId: 'canada-texture' },        
+        { start: 7, end: 9, textureId: 'usa-texture' },           
+        
+        // CONMEBOL 
+        { start: 10, end: 12, textureId: 'argentina-texture' },   
+        { start: 13, end: 16, textureId: 'brasil-texture' },      
+        { start: 17, end: 21, textureId: 'colombia-texture' },    
+        { start: 22, end: 25, textureId: 'paraguay-texture' },    
+        { start: 26, end: 28, textureId: 'ecuador-texture' },     
+        { start: 29, end: 33, textureId: 'uruguay-texture' },     
+        
+        // ÁFRICA 
+        { start: 34, end: 36, textureId: 'marruecos-texture' },   
+        { start: 37, end: 39, textureId: 'tunez-texture' },       
+        
+        // ASIA 
+        { start: 40, end: 42, textureId: 'australia-texture' },   
+        { start: 43, end: 45, textureId: 'iran-texture' },        
+        { start: 46, end: 49, textureId: 'japon-texture' },       
+        { start: 50, end: 53, textureId: 'jordania-texture' },    
+        { start: 54, end: 56, textureId: 'coreadelsur-texture' }, 
+        { start: 57, end: 59, textureId: 'uzbekistan-texture' },  
+        
+        // OFC 
+        { start: 60, end: 63, textureId: 'nuevazelanda-texture' } 
+      ];
 
-      function getTextureIdForIndex(index) {
-        for (const map of targetMap) {
-          if (index >= map.start && index <= map.end) {
-            return map.textureId;
-          }
-        }
-        return null;
-      }
+      function getTextureIdForIndex(index) {
+        for (const map of targetMap) {
+          if (index >= map.start && index <= map.end) {
+            return map.textureId;
+          }
+        }
+        return null;
+      }
 
-      // 1. Generar dinámicamente todos los targets (0 a 63)
-      const allTargets = [];
-      for (let i = 0; i <= 63; i++) {
-        const textureId = getTextureIdForIndex(i);
-        if (!textureId) continue; 
+      // 1. Generar dinámicamente todos los targets (0 a 63)
+      const allTargets = [];
+      for (let i = 0; i <= 63; i++) {
+        const textureId = getTextureIdForIndex(i);
+        if (!textureId) continue; 
 
-        const targetEntity = document.createElement('a-entity');
-        targetEntity.setAttribute('mindar-image-target', `targetIndex: ${i}`);
-        targetEntity.setAttribute('id', `target-${i}`);
-        
-        const flagModel = document.createElement('a-entity');
-        flagModel.setAttribute('gltf-model', '#flag-model');
-        
-                
-        // Escala (se mantiene la que tenías)
-        flagModel.setAttribute('scale', '0.0006 0.0006 0.0006'); 
-        
-        // === CAMBIO === 
-        // Posición movida a la izquierda para centrar
-        flagModel.setAttribute('position', '-0.1 0 0'); 
-        flagModel.setAttribute('rotation', '0 0 0');
-        
-        // Usar el componente personalizado para cambiar la textura
-        flagModel.setAttribute('change-flag-texture', `textureId: ${textureId}`);
-        
-        // Marcar este modelo con el índice del target para debugging
-        flagModel.setAttribute('data-target-index', i);
+        const targetEntity = document.createElement('a-entity');
+        targetEntity.setAttribute('mindar-image-target', `targetIndex: ${i}`);
+        targetEntity.setAttribute('id', `target-${i}`);
+        
+        const flagModel = document.createElement('a-entity');
+        flagModel.setAttribute('gltf-model', '#flag-model');
+        flagModel.setAttribute('animation-mixer', '');
+        
+        // Escala muy pequeña
+        flagModel.setAttribute('scale', '0.0006 0.0006 0.0006'); 
+        
+        // Posición centrada
+        flagModel.setAttribute('position', '0 0 0');
+        flagModel.setAttribute('rotation', '0 0 0');
+        
+        // Usar el componente personalizado para cambiar la textura
+        flagModel.setAttribute('change-flag-texture', `textureId: ${textureId}`);
+        
+        // Marcar este modelo con el índice del target para debugging
+        flagModel.setAttribute('data-target-index', i);
 
-        targetEntity.appendChild(flagModel);
-        sceneEl.appendChild(targetEntity);
-        allTargets.push(targetEntity);
-      }
-      
-      const activeTargets = new Set();
-      
-      // Función para controlar la visibilidad del UI de escaneo
-      const updateScanningUI = () => {
-        const scanningUI = document.querySelector('.mindar-ui-scanning');
-        if (scanningUI) {
-          if (activeTargets.size === 0) {
-            // Mostrar cuando no hay targets activos
-            scanningUI.classList.remove('hidden');
-            scanningUI.style.display = 'block';
-            scanningUI.style.opacity = '1';
-          } else {
-            // Ocultar cuando hay un target detectado
-            scanningUI.classList.add('hidden');
-            scanningUI.style.opacity = '0';
-            setTimeout(() => {
-              if (activeTargets.size > 0) {
-      s           scanningUI.style.display = 'none';
-              }
-            }, 300);
-          }
-        }
-      };
-      
-      // Intentar actualizar el UI cada 500ms para asegurar que funcione
-      setInterval(() => {
-        const scanningUI = document.querySelector('.mindar-ui-scanning');
-        if (scanningUI && activeTargets.size === 0) {
-          scanningUI.style.display = 'block';
-          scanningUI.style.opacity = '1';
-        }
-      }, 500);
-      
-      // 2. Adjuntar lógica de targetFound/targetLost
-      allTargets.forEach((target) => {
-          const targetIndexMatch = target.getAttribute('mindar-image-target').match(/targetIndex: (\d+)/);
-          if (!targetIndexMatch) return;
-          const targetIndex = parseInt(targetIndexMatch[1]);
+        targetEntity.appendChild(flagModel);
+        sceneEl.appendChild(targetEntity);
+        allTargets.push(targetEntity);
+      }
+      
+      const activeTargets = new Set();
+      
+      // Función para controlar la visibilidad del UI de escaneo
+      const updateScanningUI = () => {
+        const scanningUI = document.querySelector('.mindar-ui-scanning');
+        if (scanningUI) {
+          if (activeTargets.size === 0) {
+            // Mostrar cuando no hay targets activos
+            scanningUI.classList.remove('hidden');
+            scanningUI.style.display = 'block';
+            scanningUI.style.opacity = '1';
+          } else {
+            // Ocultar cuando hay un target detectado
+            scanningUI.classList.add('hidden');
+            scanningUI.style.opacity = '0';
+            setTimeout(() => {
+              if (activeTargets.size > 0) {
+                scanningUI.style.display = 'none';
+              }
+            }, 300);
+          }
+        }
+      };
+      
+      // Intentar actualizar el UI cada 500ms para asegurar que funcione
+      setInterval(() => {
+        const scanningUI = document.querySelector('.mindar-ui-scanning');
+        if (scanningUI && activeTargets.size === 0) {
+          scanningUI.style.display = 'block';
+          scanningUI.style.opacity = '1';
+        }
+      }, 500);
+      
+      // 2. Adjuntar lógica de targetFound/targetLost
+      allTargets.forEach((target) => {
+          const targetIndexMatch = target.getAttribute('mindar-image-target').match(/targetIndex: (\d+)/);
+          if (!targetIndexMatch) return;
+          const targetIndex = parseInt(targetIndexMatch[1]);
 
-                    target.addEventListener('targetFound', () => {
-              console.log(`Target ${targetIndex} found!`);
-              activeTargets.add(targetIndex);
-              
-              // Guardar el modelo 3D correspondiente a este target
-              const model = target.querySelector('[gltf-model]');
-              if (model) {
-                activeModels.set(targetIndex, model);
-              }
+          target.addEventListener('targetFound', () => {
+              console.log(`Target ${targetIndex} found!`);
+              activeTargets.add(targetIndex);
+              buttonContainer.style.visibility = 'visible';
+              updateScanningUI(); // Actualizar UI de escaneo
+          });
+  
+          target.addEventListener('targetLost', () => {
+              console.log(`Target ${targetIndex} lost!`);
+              activeTargets.delete(targetIndex);
+              
+              if (activeTargets.size === 0) {
+                  buttonContainer.style.visibility = 'hidden';
+              }
+              updateScanningUI(); // Actualizar UI de escaneo
+          });
+      });
+      
+      // Funcionalidad de los botones
+      document.getElementById('button1').addEventListener('click', () => {
+        alert('Botón 1 presionado!');
+      });
+      document.getElementById('button2').addEventListener('click', () => {
+        alert('Botón 2 presionado!');
+      });
+      document.getElementById('button3').addEventListener('click', () => {
+        alert('Botón 3 presionado!');
+      });
+      
+      // Asegurar que el botón de home siempre sea visible
+      const homeButton = document.getElementById('home-button');
+      if (homeButton) {
+        homeButton.style.visibility = 'visible';
+        homeButton.style.display = 'flex';
+        homeButton.style.position = 'fixed';
+        homeButton.style.zIndex = '999999';
+      }
+      
+      // Forzar que el recuadro de escaneo esté centrado
+      setTimeout(() => {
+        const scanningUI = document.querySelector('.mindar-ui-scanning');
+        if (scanningUI) {
+          scanningUI.style.position = 'fixed';
+          scanningUI.style.top = '50%';
+          scanningUI.style.left = '50%';
+          scanningUI.style.transform = 'translate(-50%, -50%)';
+          scanningUI.style.zIndex = '10000';
+        }
+        
+        /* --- CORRECCIÓN ---
+           Se eliminaron las líneas que ocultaban
+           .mindar-ui-container y .mindar-ui-overlay
+           para permitir que el cuadro de escaneo sea visible.
+        */
+        
+      }, 1000);
 
-              buttonContainer.style.visibility = 'visible';
-              updateScanningUI(); // Actualizar UI de escaneo
-          });
-  
-                    target.addEventListener('targetLost', () => {
-              console.log(`Target ${targetIndex} lost!`);
-              activeTargets.delete(targetIndex);
-              
-              // Buscar el modelo que se perdió
-              const model = activeModels.get(targetIndex);
-              if (model) {
-                  // Quitarle la animación para que se resetee
-img                   model.removeAttribute('animation-mixer');
-                  // Quitarlo del mapa de modelos activos
-                  activeModels.delete(targetIndex);
-              }
-              
-              if (activeTargets.size === 0) {
-s                 buttonContainer.style.visibility = 'hidden';
-              }
-              updateScanningUI(); // Actualizar UI de escaneo
-s         });
-      });
-      
-            document.getElementById('animate-button').addEventListener('click', () => {
-        // Si hay modelos activos...
-        if (activeModels.size > 0) {
-          // ...iterar sobre todos y añadirles el 'animation-mixer'
-s         activeModels.forEach((model, index) => {
-            console.log(`Animando modelo del target ${index}`);
-            model.setAttribute('animation-mixer', '');
-          });
-        }
-      });
-      
-      // Funcionalidad de los botones
-s     document.getElementById('button1').addEventListener('click', () => {
-        alert('Botón 1 presionado!');
-      });
-      document.getElementById('button2').addEventListener('click', () => {
-        alert('Botón 2 presionado!');
-      });
-      document.getElementById('button3').addEventListener('click', () => {
-        alert('Botón 3 presionado!');
-      });
-      
-      // Asegurar que el botón de home siempre sea visible
-s     const homeButton = document.getElementById('home-button');
-      if (homeButton) {
-        homeButton.style.visibility = 'visible';
-        homeButton.style.display = 'flex';
-        homeButton.style.position = 'fixed';
-        homeButton.style.zIndex = '999999';
-      }
-      
-      // Forzar que el recuadro de escaneo esté centrado
-      setTimeout(() => {
-        const scanningUI = document.querySelector('.mindar-ui-scanning');
-        if (scanningUI) {
-          scanningUI.style.position = 'fixed';
-          scanningUI.style.top = '50%';
-          scanningUI.style.left = '50%';
-          scanningUI.style.transform = 'translate(-50%, -50%)';
-          scanningUI.style.zIndex = '10000';
-        }
-        
-        /* (Se eliminaron las líneas de JS que ocultaban los contenedores, 
-           ya que ahora se hace con CSS)
-        */
-        
-      }, 1000);
-
-    });
-  </script>
+    });
+  </script>
 </body>
 </html>
