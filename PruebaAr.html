@@ -108,6 +108,7 @@
       position: fixed;
       top: 0;
       left: 0;
+      z-index: 1; /* <-- CORRECCIÓN: Añadido para estar detrás del botón */
     }
     
     /* Botón de Home */
@@ -124,7 +125,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      z-index: 999999 !important;
+      z-index: 999999 !important; /* <-- Este z-index alto asegura que esté al frente */
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       transition: all 0.3s ease;
       text-decoration: none;
@@ -174,11 +175,11 @@
       pointer-events: none;
     }
     
-    /* Ocultar el borde blanco */
-    .mindar-ui-container,
-    .mindar-ui-overlay {
-      display: none !important;
-    }
+    /* --- CORRECCIÓN ---
+       Se eliminaron las reglas que ocultaban
+       .mindar-ui-container y .mindar-ui-overlay
+       para permitir que el cuadro de escaneo sea visible.
+    */
     
     /* Asegurar que el canvas de AR ocupe toda la pantalla */
     canvas {
@@ -200,7 +201,6 @@
 </head>
 <body>
 
-  <!-- Botón de Home -->
   <a href="index.html" id="home-button" title="Volver al inicio">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
       <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
@@ -417,12 +417,12 @@
           scanningUI.style.zIndex = '10000';
         }
         
-        // Ocultar cualquier overlay o contenedor
-        const container = document.querySelector('.mindar-ui-container');
-        if (container) container.style.display = 'none';
+        /* --- CORRECCIÓN ---
+           Se eliminaron las líneas que ocultaban
+           .mindar-ui-container y .mindar-ui-overlay
+           para permitir que el cuadro de escaneo sea visible.
+        */
         
-        const overlay = document.querySelector('.mindar-ui-overlay');
-        if (overlay) overlay.style.display = 'none';
       }, 1000);
 
     });
