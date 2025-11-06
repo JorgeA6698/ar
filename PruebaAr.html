@@ -264,7 +264,25 @@
       pointer-events: none;
     }
     
-    /* Canvas de AR */
+    /* Debug en pantalla */
+    #debug-info {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #00ff00;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 12px;
+      z-index: 999998;
+      max-width: 90%;
+      pointer-events: none;
+    }
+    
+    #debug-info div {
+      margin: 2px 0;
+    }
     canvas {
       position: fixed !important;
       top: 0 !important;
@@ -275,6 +293,14 @@
   </style>
 </head>
 <body>
+
+  <!-- Debug visual en pantalla -->
+  <div id="debug-info">
+    <div id="debug-status">Iniciando...</div>
+    <div id="debug-targets">Targets: 0</div>
+    <div id="debug-buttons">Botones: ocultos</div>
+    <div id="debug-mixer">Mixer: N/A</div>
+  </div>
 
   <a href="index.html" id="home-button" title="Volver al inicio" aria-label="Inicio">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -290,7 +316,7 @@
 
   <a-scene
     id="ar-scene"
-    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 64; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
+    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false"
     embedded
@@ -328,9 +354,27 @@
   </a-scene>
 
   <script>
+    // Sistema de debug visual
+    function updateDebug(key, value) {
+      const debugEl = document.getElementById(`debug-${key}`);
+      if (debugEl) {
+        debugEl.textContent = `${key}: ${value}`;
+      }
+    }
+    
     document.addEventListener('DOMContentLoaded', () => {
       const sceneEl = document.querySelector('a-scene');
       const buttonContainer = document.getElementById('button-container');
+      
+      updateDebug('status', 'Cargando escena...');
+      
+      // Verificar que los elementos existan
+      if (!buttonContainer) {
+        updateDebug('status', 'ERROR: buttonContainer no existe!');
+        return;
+      }
+      
+      updateDebug('status', 'Elementos encontrados');
       
       // Mapeo de índices a IDs de textura
       const targetMap = [
@@ -429,33 +473,50 @@
         const targetIndex = parseInt(targetIndexMatch[1]);
 
         target.addEventListener('targetFound', () => {
-          console.log(`🎯 Target ${targetIndex} encontrado!`);
+          const targetId = `target-${targetIndex}`;
           activeTargets.add(targetIndex);
           
-          // Mostrar botones
-          buttonContainer.classList.add('visible');
+          updateDebug('status', `Target ${targetIndex} DETECTADO!`);
+          updateDebug('targets', activeTargets.size);
+          
+          // FORZAR visibilidad de botones de múltiples formas
+          buttonContainer.className = 'visible';
           buttonContainer.style.visibility = 'visible';
+          buttonContainer.style.display = 'flex';
           buttonContainer.style.opacity = '1';
           buttonContainer.style.pointerEvents = 'auto';
+          buttonContainer.style.zIndex = '100000';
+          
+          updateDebug('buttons', 'VISIBLES');
           
           // Resetear estado de animación
           isAnimating = false;
           document.getElementById('animate-button').textContent = '▶️';
           
-          console.log(`👍 Botones mostrados`);
+          // Verificar si el mixer está disponible
+          setTimeout(() => {
+            const mixer = animationMixers.get(targetId);
+            updateDebug('mixer', mixer ? 'DISPONIBLE' : 'NO DISPONIBLE');
+          }, 500);
+          
           updateScanningUI();
         });
 
         target.addEventListener('targetLost', () => {
-          console.log(`🚫 Target ${targetIndex} perdido!`);
           activeTargets.delete(targetIndex);
+          
+          updateDebug('status', `Target ${targetIndex} perdido`);
+          updateDebug('targets', activeTargets.size);
           
           if (activeTargets.size === 0) {
             // Ocultar botones
-            buttonContainer.classList.remove('visible');
+            buttonContainer.className = '';
             buttonContainer.style.visibility = 'hidden';
+            buttonContainer.style.display = 'flex';
             buttonContainer.style.opacity = '0';
             buttonContainer.style.pointerEvents = 'none';
+            
+            updateDebug('buttons', 'ocultos');
             
             // Pausar animación
             const targetId = `target-${targetIndex}`;
@@ -464,55 +525,75 @@
               mixer.timeScale = 0;
             }
             isAnimating = false;
-            
-            console.log(`🚫 Botones ocultados`);
+            updateDebug('mixer', 'pausado');
           }
           updateScanningUI();
         });
       });
       
       // Funcionalidad del botón de animación
-      document.getElementById('animate-button').addEventListener('click', () => {
-        console.log(`🎬 Click en botón de animación`);
+      document.getElementById('animate-button').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        updateDebug('status', 'Click en ANIMAR');
         
         if (activeTargets.size > 0) {
           const activeTargetIndex = Array.from(activeTargets)[0];
           const targetId = `target-${activeTargetIndex}`;
           const mixer = animationMixers.get(targetId);
           
-          console.log(`Target activo: ${targetId}`);
-          console.log(`Mixer encontrado:`, mixer ? '✅ Sí' : '❌ No');
-          
           if (mixer) {
             if (!isAnimating) {
-              // Iniciar animación
               mixer.timeScale = 1;
               isAnimating = true;
               document.getElementById('animate-button').textContent = '⏸️';
-              console.log('▶️ Animación INICIADA');
+              updateDebug('mixer', 'REPRODUCIENDO');
             } else {
-              // Pausar animación
               mixer.timeScale = 0;
               isAnimating = false;
               document.getElementById('animate-button').textContent = '▶️';
-              console.log('⏸️ Animación PAUSADA');
+              updateDebug('mixer', 'PAUSADO');
             }
           } else {
-            console.error('❌ No se pudo encontrar el mixer para la animación');
-            alert('Error: Animación no disponible. Intenta escanear de nuevo.');
+            updateDebug('mixer', 'ERROR: No disponible');
           }
         } else {
-          console.warn('⚠️ No hay targets activos');
+          updateDebug('status', 'No hay targets activos');
         }
       });
       
       // Otros botones
-      document.getElementById('button2').addEventListener('click', () => {
+      document.getElementById('button2').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        updateDebug('status', 'Click en Botón 2');
         alert('Información de la bandera');
       });
-      document.getElementById('button3').addEventListener('click', () => {
+      
+      document.getElementById('button3').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        updateDebug('status', 'Click en Botón 3');
         alert('Más opciones');
       });
+      
+      
+      // Prueba inicial - forzar botones visibles por 3 segundos para verificar
+      updateDebug('status', 'Prueba: mostrando botones 3s');
+      buttonContainer.style.visibility = 'visible';
+      buttonContainer.style.display = 'flex';
+      buttonContainer.style.opacity = '1';
+      buttonContainer.style.pointerEvents = 'auto';
+      
+      setTimeout(() => {
+        if (activeTargets.size === 0) {
+          buttonContainer.style.visibility = 'hidden';
+          buttonContainer.style.opacity = '0';
+          buttonContainer.style.pointerEvents = 'none';
+          updateDebug('status', 'Esperando target...');
+        }
+      }, 3000);
       
       // Asegurar visibilidad del botón home
       const homeButton = document.getElementById('home-button');
