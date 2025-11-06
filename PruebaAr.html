@@ -96,16 +96,29 @@
         const el = this.el;
         const targetId = el.parentNode.getAttribute('id');
         
-        el.addEventListener('model-loaded', () => {
-          const model = el.getObject3D('mesh');
-          if (!model) return;
-          
+        // Intentar múltiples veces hasta que el mixer esté disponible
+        let attempts = 0;
+        const maxAttempts = 20;
+        
+        const checkMixer = () => {
           const mixer = el.components['animation-mixer'];
+          
           if (mixer && mixer.mixer) {
+            // Pausar la animación al inicio
             mixer.mixer.timeScale = 0;
             animationMixers.set(targetId, mixer.mixer);
-            console.log(`Animación pausada para ${targetId}`);
+            console.log(`✅ Animación pausada y registrada para ${targetId}`);
+          } else if (attempts < maxAttempts) {
+            attempts++;
+            setTimeout(checkMixer, 200);
+          } else {
+            console.warn(`⚠️ No se pudo encontrar mixer para ${targetId}`);
           }
+        };
+        
+        // Esperar a que el modelo se cargue
+        el.addEventListener('model-loaded', () => {
+          setTimeout(checkMixer, 100);
         });
       }
     });
@@ -181,17 +194,22 @@
     /* Contenedor de botones de acción */
     #button-container {
       position: fixed;
-      /*bottom: 15px;
-      right: 15px; */
-      top: 65%;
-      left: 50%;
-      transform: translate(-50%,-50%);
-
-      z-index: 100000;
-      display: flex;
-      flex-direction: Row; 
-      visibility: hidden ;
-      gap: 15px;
+      bottom: 15px;
+      right: 15px;
+      z-index: 100000 !important;
+      display: flex !important;
+      flex-direction: column; 
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      gap: 10px;
+      pointer-events: none;
+    }
+    
+    #button-container.visible {
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
     }
     
     /* Botones de acción optimizados para móvil */
@@ -272,7 +290,7 @@
 
   <a-scene
     id="ar-scene"
-    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
+    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 64; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false"
     embedded
@@ -411,26 +429,43 @@
         const targetIndex = parseInt(targetIndexMatch[1]);
 
         target.addEventListener('targetFound', () => {
-          console.log(`Target ${targetIndex} found!`);
+          console.log(`🎯 Target ${targetIndex} encontrado!`);
           activeTargets.add(targetIndex);
+          
+          // Mostrar botones
+          buttonContainer.classList.add('visible');
           buttonContainer.style.visibility = 'visible';
+          buttonContainer.style.opacity = '1';
+          buttonContainer.style.pointerEvents = 'auto';
+          
+          // Resetear estado de animación
           isAnimating = false;
           document.getElementById('animate-button').textContent = '▶️';
+          
+          console.log(`👍 Botones mostrados`);
           updateScanningUI();
         });
 
         target.addEventListener('targetLost', () => {
-          console.log(`Target ${targetIndex} lost!`);
+          console.log(`🚫 Target ${targetIndex} perdido!`);
           activeTargets.delete(targetIndex);
           
           if (activeTargets.size === 0) {
+            // Ocultar botones
+            buttonContainer.classList.remove('visible');
             buttonContainer.style.visibility = 'hidden';
+            buttonContainer.style.opacity = '0';
+            buttonContainer.style.pointerEvents = 'none';
+            
+            // Pausar animación
             const targetId = `target-${targetIndex}`;
             const mixer = animationMixers.get(targetId);
             if (mixer) {
               mixer.timeScale = 0;
             }
             isAnimating = false;
+            
+            console.log(`🚫 Botones ocultados`);
           }
           updateScanningUI();
         });
@@ -438,24 +473,36 @@
       
       // Funcionalidad del botón de animación
       document.getElementById('animate-button').addEventListener('click', () => {
+        console.log(`🎬 Click en botón de animación`);
+        
         if (activeTargets.size > 0) {
           const activeTargetIndex = Array.from(activeTargets)[0];
           const targetId = `target-${activeTargetIndex}`;
           const mixer = animationMixers.get(targetId);
           
+          console.log(`Target activo: ${targetId}`);
+          console.log(`Mixer encontrado:`, mixer ? '✅ Sí' : '❌ No');
+          
           if (mixer) {
             if (!isAnimating) {
+              // Iniciar animación
               mixer.timeScale = 1;
               isAnimating = true;
               document.getElementById('animate-button').textContent = '⏸️';
-              console.log('Animación iniciada');
+              console.log('▶️ Animación INICIADA');
             } else {
+              // Pausar animación
               mixer.timeScale = 0;
               isAnimating = false;
               document.getElementById('animate-button').textContent = '▶️';
-              console.log('Animación pausada');
+              console.log('⏸️ Animación PAUSADA');
             }
+          } else {
+            console.error('❌ No se pudo encontrar el mixer para la animación');
+            alert('Error: Animación no disponible. Intenta escanear de nuevo.');
           }
+        } else {
+          console.warn('⚠️ No hay targets activos');
         }
       });
       
