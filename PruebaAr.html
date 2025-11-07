@@ -11,6 +11,7 @@
   <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
 
   <script>
+    /* ----- SCRIPT 1: COMPONENTES DE AFRAME (EN HEAD) ----- */
     const animationMixers = new Map();
     
     AFRAME.registerComponent('change-flag-texture', {
@@ -211,6 +212,113 @@
       max-width: 200px;
       pointer-events: none;
     }
+    
+    /* === INICIO DE ESTILOS PARA TRIVIA === */
+    #trivia-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 1000000;
+      display: none; /* Oculto por defecto */
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    
+    .trivia-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    
+    .trivia-close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #888;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .trivia-close-btn:hover {
+      color: #000;
+    }
+    
+    .trivia-question {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 15px;
+    }
+    .trivia-question h3 {
+      font-size: 16px;
+      margin: 0 0 10px 0;
+      color: #333;
+    }
+    .trivia-options label {
+      display: block;
+      background-color: #f4f4f4;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+    .trivia-options label:hover {
+      background-color: #e9e9e9;
+    }
+    .trivia-options input {
+      margin-right: 10px;
+    }
+    
+    #trivia-submit {
+      width: 100%;
+      padding: 12px;
+      background-color: #002868;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    #trivia-submit:hover {
+      background-color: #001a4a;
+    }
+    
+    #trivia-results {
+      margin-top: 20px;
+    }
+    .trivia-result-item {
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      border: 1px solid;
+    }
+    .trivia-result-item.correct {
+      background-color: #dff0d8;
+      border-color: #d6e9c6;
+      color: #3c763d;
+    }
+    .trivia-result-item.incorrect {
+      background-color: #f2dede;
+      border-color: #ebccd1;
+      color: #a94442;
+    }
+    /* === FIN DE ESTILOS PARA TRIVIA === */
   </style>
 </head>
 <body>
@@ -231,6 +339,18 @@
     <button class="action-button" id="animate-button">▶️</button>
     <button class="action-button" id="button2">📊</button>
     <button class="action-button" id="Trivia">❔</button>
+  </div>
+  
+  <div id="trivia-modal">
+    <div class="trivia-container">
+      <span class="trivia-close-btn" id="trivia-close">&times;</span>
+      <h2>Trivia del Mundial</h2>
+      <div id="trivia-content">
+        </div>
+      <div id="trivia-results">
+        </div>
+      <button id="trivia-submit">Enviar</button>
+    </div>
   </div>
 
   <a-scene
@@ -266,128 +386,316 @@
   </a-scene>
 
  <script>
-    const $ = (id) => document.getElementById(id);
-    const debug = (key, val) => {
-      const el = $(`d-${key}`);
-      if (el) el.textContent = val;
-    };
+    /* ----- SCRIPT 2: LÓGICA DE LA APLICACIÓN (UNIFICADA) ----- */
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const sceneEl = $('ar-scene');
-      const buttonContainer = $('button-container');
-      
-      debug('status', 'Inicializado');
+    // --- Funciones de Ayuda (Definidas 1 sola vez) ---
+    const $ = (id) => document.getElementById(id);
+    const debug = (key, val) => {
+      const el = $(`d-${key}`);
+      if (el) el.textContent = val;
+    };
 
-      const targetMap = [
-        { start: 0, end: 3, textureId: 'mexico-texture' },        
-        { start: 4, end: 6, textureId: 'canada-texture' },        
-        { start: 7, end: 9, textureId: 'usa-texture' },           
-        { start: 10, end: 12, textureId: 'argentina-texture' },   
-        { start: 13, end: 16, textureId: 'brasil-texture' },      
-        { start: 17, end: 21, textureId: 'colombia-texture' },    
-        { start: 22, end: 25, textureId: 'paraguay-texture' },    
-        { start: 26, end: 28, textureId: 'ecuador-texture' },     
-        { start: 29, end: 33, textureId: 'uruguay-texture' },     
-        { start: 34, end: 36, textureId: 'marruecos-texture' },   
-        { start: 37, end: 39, textureId: 'tunez-texture' },       
-        { start: 40, end: 42, textureId: 'australia-texture' },   
-        { start: 43, end: 45, textureId: 'iran-texture' },        
-        { start: 46, end: 49, textureId: 'japon-texture' },       
-        { start: 50, end: 53, textureId: 'jordania-texture' },    
-        { start: 54, end: 56, textureId: 'coreadelsur-texture' }, 
-        { start: 57, end: 59, textureId: 'uzbekistan-texture' },  
-        { start: 60, end: 63, textureId: 'nuevazelanda-texture' } 
-      ];
+    /* === INICIO DE LÓGICA DE TRIVIA === */
+    
+    // 1. Base de datos de preguntas
+    const triviaQuestions = [
+      { 
+        q: "¿En qué año participó Canadá por primera vez en una Copa del Mundo masculina?", 
+        a: "1986",
+        options: ["1986", "1994", "1978"]
+      },
+      { 
+        q: "¿Cuál es la mejor posición histórica de EE.UU. en una Copa del Mundo?", 
+        a: "Tercer lugar (en 1930)",
+        options: ["Tercer lugar (en 1930)", "Cuartos de final (en 2002)", "Octavos de final (en 1994)"]
+      },
+      { 
+        q: "¿Cuántas veces México ha sido sede de la Copa del Mundo (contando 2026)?", 
+        a: "Tres veces",
+        options: ["Tres veces", "Dos veces", "Una vez"]
+      },
+      { 
+        q: "¿Quién es el máximo goleador histórico de Argentina en Mundiales?", 
+        a: "Lionel Messi",
+        options: ["Lionel Messi", "Gabriel Batistuta", "Diego Maradona"]
+      },
+      { 
+        q: "¿Qué país, además de Brasil, ha jugado todas las ediciones del Mundial?", 
+        a: "Ninguno (Brasil es el único)",
+        options: ["Ninguno (Brasil es el único)", "Alemania", "Italia", "Argentina"]
+      },
+      { 
+        q: "¿Cuál fue el rival de Ecuador en su partido inaugural en Qatar 2022?", 
+        a: "Qatar",
+        options: ["Qatar", "Senegal", "Países Bajos"]
+      },
+      { 
+        q: "¿Qué país fue el primer campeón mundial en 1930?", 
+        a: "Uruguay",
+        options: ["Uruguay", "Argentina", "Italia"]
+      },
+      { 
+        q: "¿Qué jugador colombiano ganó el Botín de Oro en el Mundial de 2014?", 
+        a: "James Rodríguez",
+        options: ["James Rodríguez", "Radamel Falcao", "Thomas Müller"]
+      },
+      { 
+        q: "¿Cuál ha sido la mejor actuación histórica de Paraguay en un Mundial?", 
+        a: "Cuartos de final (2010)",
+        options: ["Cuartos de final (2010)", "Octavos de final", "Fase de grupos"]
+      },
+      { 
+        q: "¿Cómo se le conoce popularmente a la selección de Japón?", 
+        a: "Samurai Blue",
+        options: ["Samurai Blue", "Los Dragones Azules", "Guerreros del Sol"]
+      },
+      { 
+        q: "¿En qué Mundial logró Irán su primera victoria en la historia del torneo?", 
+        a: "Mundial de 1998",
+        options: ["Mundial de 1998", "Mundial de 1978", "Mundial de 2006"]
+      },
+      { 
+        q: "¿Junto a qué país organizó Corea del Sur el Mundial de 2002?", 
+        a: "Japón",
+        options: ["Japón", "China", "Tailandia"]
+      },
+      { 
+        q: "¿Qué hito logró Jordania al clasificar para 2026?", 
+        a: "Clasificar por primera vez a un Mundial",
+        options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Ser anfitrión"]
+      },
+      { 
+        q: "¿Qué hito logró Uzbekistán al clasificar para 2026?", 
+        a: "Clasificar por primera vez a un Mundial",
+        options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Llegar a semifinales"]
+      },
+      { 
+        q: "¿A qué confederación futbolística pertenece Australia desde 2006?", 
+        a: "Asiática (AFC)",
+        options: ["Asiática (AFC)", "Oceanía (OFC)", "UEFA (Europa)"]
+      },
+      { 
+        q: "¿Cuál es el apodo de la selección de Nueva Zelanda?", 
+        a: "All Whites",
+        options: ["All Whites", "All Blacks", "Los Kiwis"]
+      },
+      { 
+        q: "¿Qué selección africana fue la primera en llegar a semifinales (en 2022)?", 
+        a: "Marruecos",
+        options: ["Marruecos", "Senegal", "Camerún", "Ghana"]
+      },
+      { 
+        q: "¿En qué Mundial, Túnez se convirtió en el primer equipo africano en ganar un partido?", 
+        a: "Mundial de 1978",
+        options: ["Mundial de 1978", "Mundial de 1982", "Mundial de 1990"]
+      }
+    ];
 
-      const getTextureIdForIndex = (index) => {
-        for (const map of targetMap) {
-          if (index >= map.start && index <= map.end) return map.textureId;
-        }
-        return null;
-      };
+    // 2. Función para mezclar un array
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
 
-      const allTargets = [];
-      for (let i = 0; i <= 63; i++) {
-        const textureId = getTextureIdForIndex(i);
-        if (!textureId) continue;
+    let currentQuestions = []; // Guardará las 5 preguntas actuales
 
-        const targetEntity = document.createElement('a-entity');
-        targetEntity.setAttribute('mindar-image-target', `targetIndex: ${i}`);
-        targetEntity.setAttribute('id', `target-${i}`);
-        
-        const flagModel = document.createElement('a-entity');
-        flagModel.setAttribute('gltf-model', '#flag-model');
-        flagModel.setAttribute('animation-mixer', '');
-        flagModel.setAttribute('manual-animation', '');
-        flagModel.setAttribute('scale', '0.0005 0.0005 0.0005');
-        flagModel.setAttribute('position', '0 0 0');
-        flagModel.setAttribute('change-flag-texture', `textureId: ${textureId}`);
+    // 3. Función para mostrar la trivia
+    function showTrivia() {
+      $('trivia-content').innerHTML = '';
+      $('trivia-results').innerHTML = '';
+      $('trivia-submit').style.display = 'block'; 
+      
+      currentQuestions = shuffleArray([...triviaQuestions]).slice(0, 5);
+      
+      currentQuestions.forEach((item, index) => {
+        const questionId = `q${index}`;
+        const shuffledOptions = shuffleArray([...item.options]);
+        
+        const optionsHtml = shuffledOptions.map(option => `
+          <label>
+            <input type="radio" name="${questionId}" value="${option}">
+            ${option}
+          </label>
+        `).join('');
+        
+        const questionHtml = `
+          <div class="trivia-question" data-correct-answer="${item.a}">
+            <h3>${index + 1}. ${item.q}</h3>
+            <div class="trivia-options">
+              ${optionsHtml}
+            </div>
+          </div>
+        `;
+        $('trivia-content').innerHTML += questionHtml;
+      });
+      
+      $('trivia-modal').style.display = 'flex';
+    }
 
-        targetEntity.appendChild(flagModel);
-        sceneEl.appendChild(targetEntity);
-        allTargets.push({entity: targetEntity, index: i, id: `target-${i}`});
-      }
+    // 4. Función para cerrar la trivia
+    function hideTrivia() {
+      $('trivia-modal').style.display = 'none';
+    }
 
-      let isAnimating = false;
-      let currentVisibleTarget = null;
+    // 5. Función para revisar las respuestas
+    function checkTriviaAnswers() {
+      $('trivia-submit').style.display = 'none'; 
+      $('trivia-results').innerHTML = ''; 
+      
+      const questionElements = document.querySelectorAll('.trivia-question');
+      let correctCount = 0;
+      
+      questionElements.forEach((qEl, index) => {
+        const selectedInput = qEl.querySelector('input[type="radio"]:checked');
+        const correctAnswer = qEl.getAttribute('data-correct-answer');
+        const questionText = currentQuestions[index].q;
 
-      /* === INICIO DE LA CORRECCIÓN === */
-      // Se elimina el 'setInterval' y se usan los eventos de MindAR
-      
-      allTargets.forEach((target) => {
-        // Evento cuando se ENCUENTRA un target
-        target.entity.addEventListener('targetFound', () => {
-          currentVisibleTarget = target.id; // Guarda el ID del target visible
-          debug('status', `Target ${target.index} ENCONTRADO`);
-          debug('targets', '1');
-          debug('buttons', 'VISIBLES');
-          
-          buttonContainer.style.visibility = 'visible'; // Muestra los botones
-          isAnimating = false; // Resetea la animación
-          $('animate-button').textContent = '▶️';
-        });
-
-        // Evento cuando se PIERDE un target
-        target.entity.addEventListener('targetLost', () => {
-          // Solo nos importa si el target que se perdió es el que estaba activo
-          if (currentVisibleTarget === target.id) {
-            currentVisibleTarget = null; // Limpia la variable
-            debug('status', 'Sin target');
-            debug('targets', '0');
-            debug('buttons', 'ocultos');
-            buttonContainer.style.visibility = 'hidden'; // Oculta los botones
-            isAnimating = false;
-          }
-        });
-      });
-      /* === FIN DE LA CORRECCIÓN === */
+        let resultHtml = '';
+        if (selectedInput && selectedInput.value === correctAnswer) {
+          correctCount++;
+          resultHtml = `
+            <div class="trivia-result-item correct">
+              <b>Pregunta ${index + 1}: ¡Correcto!</b><br>
+              ${questionText}
+            </div>
+          `;
+        } else {
+          resultHtml = `
+            <div class="trivia-result-item incorrect">
+              <b>Pregunta ${index + 1}: Incorrecto.</b><br>
+              <i>Respuesta correcta: ${correctAnswer}</i>
+            </div>
+          `;
+        }
+        $('trivia-results').innerHTML += resultHtml;
+      });
+      
+      $('trivia-results').innerHTML = `<h3>Acertaste ${correctCount} de 5</h3>` + $('trivia-results').innerHTML;
+    }
+    /* === FIN DE LÓGICA DE TRIVIA === */
 
 
-      $('animate-button').addEventListener('click', () => {
-        if (!currentVisibleTarget) return; // No hacer nada si no hay target
-        
-        // Buscar el mixer de animación del target que está visible
-        const mixer = animationMixers.get(currentVisibleTarget);
-        if (mixer) {
-          if (!isAnimating) {
-            mixer.timeScale = 1; // Reanudar
-            isAnimating = true;
-            $('animate-button').textContent = '⏸️';
-            debug('status', 'ANIMANDO');
-          } else {
-            mixer.timeScale = 0; // Pausar
-            isAnimating = false;
-            $('animate-button').textContent = '▶️';
-            debug('status', 'PAUSADO');
-          }
-        } else {
-          debug('status', 'Error: Mixer no encontrado');
-        }
-      });
+    /* === INICIO DE LÓGICA DE AR === */
+    document.addEventListener('DOMContentLoaded', () => {
+      const sceneEl = $('ar-scene');
+      const buttonContainer = $('button-container');
+      
+      debug('status', 'Inicializado');
 
-      $('button2').addEventListener('click', () => alert('Información'));
-      $('button3').addEventListener('click', () => alert('Opciones'));
-    });
-  </script>
+      const targetMap = [
+        { start: 0, end: 3, textureId: 'mexico-texture' },       
+        { start: 4, end: 6, textureId: 'canada-texture' },       
+        { start: 7, end: 9, textureId: 'usa-texture' },          
+        { start: 10, end: 12, textureId: 'argentina-texture' },  
+        { start: 13, end: 16, textureId: 'brasil-texture' },     
+        { start: 17, end: 21, textureId: 'colombia-texture' },   
+        { start: 22, end: 25, textureId: 'paraguay-texture' },   
+        { start: 26, end: 28, textureId: 'ecuador-texture' },    
+        { start: 29, end: 33, textureId: 'uruguay-texture' },    
+        { start: 34, end: 36, textureId: 'marruecos-texture' },  
+        { start: 37, end: 39, textureId: 'tunez-texture' },      
+        { start: 40, end: 42, textureId: 'australia-texture' },  
+        { start: 43, end: 45, textureId: 'iran-texture' },       
+        { start: 46, end: 49, textureId: 'japon-texture' },      
+        { start: 50, end: 53, textureId: 'jordania-texture' },   
+        { start: 54, end: 56, textureId: 'coreadelsur-texture' },
+        { start: 57, end: 59, textureId: 'uzbekistan-texture' }, 
+        { start: 60, end: 63, textureId: 'nuevazelanda-texture' } 
+      ];
+
+      const getTextureIdForIndex = (index) => {
+        for (const map of targetMap) {
+          if (index >= map.start && index <= map.end) return map.textureId;
+        }
+        return null;
+      };
+
+      const allTargets = [];
+      for (let i = 0; i <= 63; i++) {
+        const textureId = getTextureIdForIndex(i);
+        if (!textureId) continue;
+
+        const targetEntity = document.createElement('a-entity');
+        targetEntity.setAttribute('mindar-image-target', `targetIndex: ${i}`);
+        targetEntity.setAttribute('id', `target-${i}`);
+        
+        const flagModel = document.createElement('a-entity');
+        flagModel.setAttribute('gltf-model', '#flag-model');
+        flagModel.setAttribute('animation-mixer', '');
+        flagModel.setAttribute('manual-animation', '');
+        flagModel.setAttribute('scale', '0.0005 0.0005 0.0005');
+        flagModel.setAttribute('position', '0 0 0');
+        flagModel.setAttribute('change-flag-texture', `textureId: ${textureId}`);
+
+        targetEntity.appendChild(flagModel);
+        sceneEl.appendChild(targetEntity);
+        allTargets.push({entity: targetEntity, index: i, id: `target-${i}`});
+      }
+
+      let isAnimating = false;
+      let currentVisibleTarget = null;
+      
+      allTargets.forEach((target) => {
+        // Evento cuando se ENCUENTRA un target
+        target.entity.addEventListener('targetFound', () => {
+          currentVisibleTarget = target.id; 
+          debug('status', `Target ${target.index} ENCONTRADO`);
+          debug('targets', '1');
+          debug('buttons', 'VISIBLES');
+          
+          buttonContainer.style.visibility = 'visible'; 
+          isAnimating = false; 
+          $('animate-button').textContent = '▶️';
+        });
+
+        // Evento cuando se PIERDE un target
+        target.entity.addEventListener('targetLost', () => {
+          if (currentVisibleTarget === target.id) {
+            currentVisibleTarget = null; 
+            debug('status', 'Sin target');
+            debug('targets', '0');
+            debug('buttons', 'ocultos');
+            buttonContainer.style.visibility = 'hidden'; 
+            isAnimating = false;
+          }
+        });
+      });
+
+      $('animate-button').addEventListener('click', () => {
+        if (!currentVisibleTarget) return; 
+        
+        const mixer = animationMixers.get(currentVisibleTarget);
+        if (mixer) {
+          if (!isAnimating) {
+            mixer.timeScale = 1; 
+            isAnimating = true;
+            $('animate-button').textContent = '⏸️';
+            debug('status', 'ANIMANDO');
+          } else {
+            mixer.timeScale = 0; 
+            isAnimating = false;
+            $('animate-button').textContent = '▶️';
+            debug('status', 'PAUSADO');
+          }
+        } else {
+          debug('status', 'Error: Mixer no encontrado');
+        }
+      });
+
+      $('button2').addEventListener('click', () => alert('Información'));
+      
+      // Conectar el botón de Trivia a la nueva función
+      $('Trivia').addEventListener('click', showTrivia);
+      
+      // Conectar los botones del modal de trivia
+      $('trivia-close').addEventListener('click', hideTrivia);
+      $('trivia-submit').addEventListener('click', checkTriviaAnswers);
+    
+    }); // <-- Llave de cierre para 'DOMContentLoaded'
+    /* === FIN DE LÓGICA DE AR === */
+  </script>
 </body>
 </html>
