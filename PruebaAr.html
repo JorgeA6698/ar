@@ -101,24 +101,97 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    /* 1. EL BODY: con el fondo del index y centrado */
     body {
       margin: 0;
       padding: 0;
       overflow: hidden;
       width: 100%;
       height: 100vh;
-      position: fixed;
       font-family: Arial, sans-serif;
+      
+      /* FONDO DE INDEX */
+      background: linear-gradient(135deg, #006341, #BF0A30, #002868);
+      
+      /* CENTRADO */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
+    /* 2. EL RECUADRO PEQUEÑO PARA LA AR */
     #ar-scene {
-      width: 100%;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
+      width: 90%;
+      max-width: 500px;
+      height: 70vh;
+      max-height: 600px;
+      
+      position: relative !important; /* Importante para el centrado flex */
       z-index: 1;
+      
+      /* ESTILOS DEL RECUADRO */
+      border-radius: 20px;
+      overflow: hidden !important; /* CLAVE: Recorta el video */
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      
+      background: transparent !important;
     }
+
+    /* 3. REGLAS PARA FORZAR AL VIDEO A METERSE EN EL RECUADRO */
+    
+    /* El contenedor de MindAR (lo moverá el JS) */
+    .mindar-ui-container {
+      position: absolute !important; 
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      bottom: unset !important;
+      right: unset !important;
+      z-index: 1 !important; /* Capa 1 (video) */
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+
+    /* El video mismo */
+    .mindar-ui-container video {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important; /* Rellena el recuadro */
+      z-index: 1 !important;
+    }
+
+    /* El canvas 3D (la bandera) */
+    #ar-scene canvas {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover;
+      z-index: 2 !important; /* Capa 2 (encima del video) */
+      pointer-events: none;
+    }
+    
+    /* La capa de UI de MindAR */
+    .mindar-ui-overlay {
+       position: absolute !important; 
+       top: 0 !important;
+       left: 0 !important;
+       width: 100% !important;
+       height: 100% !important;
+       z-index: 3 !important; /* Capa 3 (encima de todo) */
+       pointer-events: none;
+    }
+    
+    /* 4. TUS OTROS ESTILOS (BOTONES, TRIVIA, ETC) */
     
     #home-button {
       position: fixed !important;
@@ -154,15 +227,24 @@
       fill: white;
     }
     
+    /* Posiciona los botones relativos al recuadro */
     #button-container {
       position: fixed !important;
-      bottom: 15px !important;
-      right: 15px !important;
+      bottom: calc((100vh - 70vh) / 2 + 15px) !important; /* Ajustado al recuadro */
+      right: calc((100vw - 90vw) / 2 + 15px) !important;  /* Ajustado al recuadro */
       z-index: 999998 !important;
       display: flex !important;
       flex-direction: column !important;
       gap: 10px;
       visibility: hidden;
+    }
+    
+    /* Media query para el max-width del recuadro */
+    @media (min-width: 600px) {
+      #button-container {
+        /* Se ajusta al max-width: 500px de #ar-scene */
+        right: calc((100vw - 500px) / 2 + 15px) !important;
+      }
     }
     
     .action-button {
@@ -396,193 +478,65 @@
     };
 
     /* === INICIO DE LÓGICA DE TRIVIA === */
+    // (Tu lógica de trivia está aquí... la he colapsado por claridad)
+    const triviaQuestions = [ { q: "¿En qué año participó Canadá por primera vez en una Copa del Mundo masculina?", a: "1986", options: ["1986", "1994", "1978"] }, { q: "¿Cuál es la mejor posición histórica de EE.UU. en una Copa del Mundo?", a: "Tercer lugar (en 1930)", options: ["Tercer lugar (en 1930)", "Cuartos de final (en 2002)", "Octavos de final (en 1994)"] }, { q: "¿Cuántas veces México ha sido sede de la Copa del Mundo (contando 2026)?", a: "Tres veces", options: ["Tres veces", "Dos veces", "Una vez"] }, { q: "¿Quién es el máximo goleador histórico de Argentina en Mundiales?", a: "Lionel Messi", options: ["Lionel Messi", "Gabriel Batistuta", "Diego Maradona"] }, { q: "¿Qué país, además de Brasil, ha jugado todas las ediciones del Mundial?", a: "Ninguno (Brasil es el único)", options: ["Ninguno (Brasil es el único)", "Alemania", "Italia", "Argentina"] }, { q: "¿Cuál fue el rival de Ecuador en su partido inaugural en Qatar 2022?", a: "Qatar", options: ["Qatar", "Senegal", "Países Bajos"] }, { q: "¿Qué país fue el primer campeón mundial en 1930?", a: "Uruguay", options: ["Uruguay", "Argentina", "Italia"] }, { q: "¿Qué jugador colombiano ganó el Botín de Oro en el Mundial de 2014?", a: "James Rodríguez", options: ["James Rodríguez", "Radamel Falcao", "Thomas Müller"] }, { q: "¿Cuál ha sido la mejor actuación histórica de Paraguay en un Mundial?", a: "Cuartos de final (2010)", options: ["Cuartos de final (2010)", "Octavos de final", "Fase de grupos"] }, { q: "¿Cómo se le conoce popularmente a la selección de Japón?", a: "Samurai Blue", options: ["Samurai Blue", "Los Dragones Azules", "Guerreros del Sol"] }, { q: "¿En qué Mundial logró Irán su primera victoria en la historia del torneo?", a: "Mundial de 1998", options: ["Mundial de 1998", "Mundial de 1978", "Mundial de 2006"] }, { q: "¿Junto a qué país organizó Corea del Sur el Mundial de 2002?", a: "Japón", options: ["Japón", "China", "Tailandia"] }, { q: "¿Qué hito logró Jordania al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Ser anfitrión"] }, { q: "¿Qué hito logró Uzbekistán al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Llegar a semifinales"] }, { q: "¿A qué confederación futbolística pertenece Australia desde 2006?", a: "Asiática (AFC)", options: ["Asiática (AFC)", "Oceanía (OFC)", "UEFA (Europa)"] }, { q: "¿Cuál es el apodo de la selección de Nueva Zelanda?", a: "All Whites", options: ["All Whites", "All Blacks", "Los Kiwis"] }, { q: "¿Qué selección africana fue la primera en llegar a semifinales (en 2022)?", a: "Marruecos", options: ["Marruecos", "Senegal", "Camerún", "Ghana"] }, { q: "¿En qué Mundial, Túnez se convirtió en el primer equipo africano en ganar un partido?", a: "Mundial de 1978", options: ["Mundial de 1978", "Mundial de 1982", "Mundial de 1990"] } ];
+    function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
+    let currentQuestions = [];
+    function showTrivia() { $('trivia-content').innerHTML = ''; $('trivia-results').innerHTML = ''; $('trivia-submit').style.display = 'block'; currentQuestions = shuffleArray([...triviaQuestions]).slice(0, 5); currentQuestions.forEach((item, index) => { const questionId = `q${index}`; const shuffledOptions = shuffleArray([...item.options]); const optionsHtml = shuffledOptions.map(option => ` <label> <input type="radio" name="${questionId}" value="${option}"> ${option} </label> `).join(''); const questionHtml = ` <div class="trivia-question" data-correct-answer="${item.a}"> <h3>${index + 1}. ${item.q}</h3> <div class="trivia-options"> ${optionsHtml} </div> </div> `; $('trivia-content').innerHTML += questionHtml; }); $('trivia-modal').style.display = 'flex'; }
+    function hideTrivia() { $('trivia-modal').style.display = 'none'; }
+    function checkTriviaAnswers() { $('trivia-submit').style.display = 'none'; $('trivia-results').innerHTML = ''; const questionElements = document.querySelectorAll('.trivia-question'); let correctCount = 0; questionElements.forEach((qEl, index) => { const selectedInput = qEl.querySelector('input[type="radio"]:checked'); const correctAnswer = qEl.getAttribute('data-correct-answer'); const questionText = currentQuestions[index].q; let resultHtml = ''; if (selectedInput && selectedInput.value === correctAnswer) { correctCount++; resultHtml = ` <div class="trivia-result-item correct"> <b>Pregunta ${index + 1}: ¡Correcto!</b><br> ${questionText} </div> `; } else { resultHtml = ` <div class="trivia-result-item incorrect"> <b>Pregunta ${index + 1}: Incorrecto.</b><br> <i>Respuesta correcta: ${correctAnswer}</i> </div> `; } $('trivia-results').innerHTML += resultHtml; }); $('trivia-results').innerHTML = `<h3>Acertaste ${correctCount} de 5</h3>` + $('trivia-results').innerHTML; }
     
-    // 1. Base de datos de preguntas
-    const triviaQuestions = [
-      { 
-        q: "¿En qué año participó Canadá por primera vez en una Copa del Mundo masculina?", 
-        a: "1986",
-        options: ["1986", "1994", "1978"]
-      },
-      { 
-        q: "¿Cuál es la mejor posición histórica de EE.UU. en una Copa del Mundo?", 
-        a: "Tercer lugar (en 1930)",
-        options: ["Tercer lugar (en 1930)", "Cuartos de final (en 2002)", "Octavos de final (en 1994)"]
-      },
-      { 
-        q: "¿Cuántas veces México ha sido sede de la Copa del Mundo (contando 2026)?", 
-        a: "Tres veces",
-        options: ["Tres veces", "Dos veces", "Una vez"]
-      },
-      { 
-        q: "¿Quién es el máximo goleador histórico de Argentina en Mundiales?", 
-        a: "Lionel Messi",
-        options: ["Lionel Messi", "Gabriel Batistuta", "Diego Maradona"]
-      },
-      { 
-        q: "¿Qué país, además de Brasil, ha jugado todas las ediciones del Mundial?", 
-        a: "Ninguno (Brasil es el único)",
-        options: ["Ninguno (Brasil es el único)", "Alemania", "Italia", "Argentina"]
-      },
-      { 
-        q: "¿Cuál fue el rival de Ecuador en su partido inaugural en Qatar 2022?", 
-        a: "Qatar",
-        options: ["Qatar", "Senegal", "Países Bajos"]
-      },
-      { 
-        q: "¿Qué país fue el primer campeón mundial en 1930?", 
-        a: "Uruguay",
-        options: ["Uruguay", "Argentina", "Italia"]
-      },
-      { 
-        q: "¿Qué jugador colombiano ganó el Botín de Oro en el Mundial de 2014?", 
-        a: "James Rodríguez",
-        options: ["James Rodríguez", "Radamel Falcao", "Thomas Müller"]
-      },
-      { 
-        q: "¿Cuál ha sido la mejor actuación histórica de Paraguay en un Mundial?", 
-        a: "Cuartos de final (2010)",
-        options: ["Cuartos de final (2010)", "Octavos de final", "Fase de grupos"]
-      },
-      { 
-        q: "¿Cómo se le conoce popularmente a la selección de Japón?", 
-        a: "Samurai Blue",
-        options: ["Samurai Blue", "Los Dragones Azules", "Guerreros del Sol"]
-      },
-      { 
-        q: "¿En qué Mundial logró Irán su primera victoria en la historia del torneo?", 
-        a: "Mundial de 1998",
-        options: ["Mundial de 1998", "Mundial de 1978", "Mundial de 2006"]
-      },
-      { 
-        q: "¿Junto a qué país organizó Corea del Sur el Mundial de 2002?", 
-        a: "Japón",
-        options: ["Japón", "China", "Tailandia"]
-      },
-      { 
-        q: "¿Qué hito logró Jordania al clasificar para 2026?", 
-        a: "Clasificar por primera vez a un Mundial",
-        options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Ser anfitrión"]
-      },
-      { 
-        q: "¿Qué hito logró Uzbekistán al clasificar para 2026?", 
-        a: "Clasificar por primera vez a un Mundial",
-        options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Llegar a semifinales"]
-      },
-      { 
-        q: "¿A qué confederación futbolística pertenece Australia desde 2006?", 
-        a: "Asiática (AFC)",
-        options: ["Asiática (AFC)", "Oceanía (OFC)", "UEFA (Europa)"]
-      },
-      { 
-        q: "¿Cuál es el apodo de la selección de Nueva Zelanda?", 
-        a: "All Whites",
-        options: ["All Whites", "All Blacks", "Los Kiwis"]
-      },
-      { 
-        q: "¿Qué selección africana fue la primera en llegar a semifinales (en 2022)?", 
-        a: "Marruecos",
-        options: ["Marruecos", "Senegal", "Camerún", "Ghana"]
-      },
-      { 
-        q: "¿En qué Mundial, Túnez se convirtió en el primer equipo africano en ganar un partido?", 
-        a: "Mundial de 1978",
-        options: ["Mundial de 1978", "Mundial de 1982", "Mundial de 1990"]
-      }
-    ];
-
-    // 2. Función para mezclar un array
-    function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
-
-    let currentQuestions = []; // Guardará las 5 preguntas actuales
-
-    // 3. Función para mostrar la trivia
-    function showTrivia() {
-      $('trivia-content').innerHTML = '';
-      $('trivia-results').innerHTML = '';
-      $('trivia-submit').style.display = 'block'; 
-      
-      currentQuestions = shuffleArray([...triviaQuestions]).slice(0, 5);
-      
-      currentQuestions.forEach((item, index) => {
-        const questionId = `q${index}`;
-        const shuffledOptions = shuffleArray([...item.options]);
-        
-        const optionsHtml = shuffledOptions.map(option => `
-          <label>
-            <input type="radio" name="${questionId}" value="${option}">
-            ${option}
-          </label>
-        `).join('');
-        
-        const questionHtml = `
-          <div class="trivia-question" data-correct-answer="${item.a}">
-            <h3>${index + 1}. ${item.q}</h3>
-            <div class="trivia-options">
-              ${optionsHtml}
-            </div>
-          </div>
-        `;
-        $('trivia-content').innerHTML += questionHtml;
-      });
-      
-      $('trivia-modal').style.display = 'flex';
-    }
-
-    // 4. Función para cerrar la trivia
-    function hideTrivia() {
-      $('trivia-modal').style.display = 'none';
-    }
-
-    // 5. Función para revisar las respuestas
-    function checkTriviaAnswers() {
-      $('trivia-submit').style.display = 'none'; 
-      $('trivia-results').innerHTML = ''; 
-      
-      const questionElements = document.querySelectorAll('.trivia-question');
-      let correctCount = 0;
-      
-      questionElements.forEach((qEl, index) => {
-        const selectedInput = qEl.querySelector('input[type="radio"]:checked');
-        const correctAnswer = qEl.getAttribute('data-correct-answer');
-        const questionText = currentQuestions[index].q;
-
-        let resultHtml = '';
-        if (selectedInput && selectedInput.value === correctAnswer) {
-          correctCount++;
-          resultHtml = `
-            <div class="trivia-result-item correct">
-              <b>Pregunta ${index + 1}: ¡Correcto!</b><br>
-              ${questionText}
-            </div>
-          `;
-        } else {
-          resultHtml = `
-            <div class="trivia-result-item incorrect">
-              <b>Pregunta ${index + 1}: Incorrecto.</b><br>
-              <i>Respuesta correcta: ${correctAnswer}</i>
-            </div>
-          `;
-        }
-        $('trivia-results').innerHTML += resultHtml;
-      });
-      
-      $('trivia-results').innerHTML = `<h3>Acertaste ${correctCount} de 5</h3>` + $('trivia-results').innerHTML;
-    }
     /* === FIN DE LÓGICA DE TRIVIA === */
+
 
     /* === INICIO DE LÓGICA DE AR === */
     document.addEventListener('DOMContentLoaded', () => {
+      
       const sceneEl = $('ar-scene');
       const buttonContainer = $('button-container');
       
-      debug('status', 'Inicializado');
+      debug('status', 'DOM Cargado. Esperando AR...');
+
+      // --- INICIO DE LA SOLUCIÓN JS (ESPERA A arReady) ---
+      // Esto es IMPRESCINDIBLE en móviles.
+      // Escucha al evento 'arReady' que MindAR dispara 
+      // CUANDO la cámara y la UI están listas.
+      sceneEl.addEventListener('arReady', () => {
+        debug('status', 'Evento arReady detectado!');
+        const arScene = document.getElementById('ar-scene');
+        if (!arScene) return;
+
+        // Iniciar el "vigilante" para mover el contenedor
+        const interval = setInterval(() => {
+          // Buscar el contenedor de video que MindAR crea en el <body>
+          const container = document.querySelector('body > .mindar-ui-container');
+          
+          if (container) {
+            // ¡LO ENCONTRAMOS!
+            clearInterval(interval); // 1. Detener el vigilante
+            arScene.appendChild(container); // 2. Mover el contenedor dentro de #ar-scene
+            debug('status', 'Contenedor AR movido!');
+            
+            // 3. Forzar los estilos (por si acaso)
+            container.style.position = 'absolute';
+            container.style.zIndex = '1';
+
+          } else {
+            // Aún no aparece, seguimos esperando...
+            debug('status', 'Buscando contenedor (post-arReady)...');
+          }
+        }, 200); // Revisar 5 veces por segundo
+
+        // Poner un límite de 15 segundos.
+        setTimeout(() => {
+          clearInterval(interval); 
+        }, 15000);
+
+      });
+      // --- FIN DE LA SOLUCIÓN JS ---
+
+      // El resto de tu código de lógica de AR (targets, botones, etc.)
+      // se queda exactamente igual.
 
       const targetMap = [
         { start: 0, end: 3, textureId: 'mexico-texture' },       
@@ -694,8 +648,8 @@
       $('trivia-submit').addEventListener('click', checkTriviaAnswers);
     
     }); // <-- Llave de cierre para 'DOMContentLoaded'
+    
     /* === FIN DE LÓGICA DE AR === */
   </script>
 </body>
 </html>
-
