@@ -497,24 +497,31 @@
       
       debug('status', 'DOM Cargado. Esperando AR...');
 
-      // --- INICIO DE LA SOLUCIÓN JS (ESPERA A arReady) ---
-      // Esto es IMPRESCINDIBLE en móviles.
-      // Escucha al evento 'arReady' que MindAR dispara 
-      // CUANDO la cámara y la UI están listas.
+      // --- INICIO DE LA SOLUCIÓN JS (LA CORRECCIÓN DEL BUG) ---
+      
       sceneEl.addEventListener('arReady', () => {
         debug('status', 'Evento arReady detectado!');
         const arScene = document.getElementById('ar-scene');
-        if (!arScene) return;
+        if (!arScene) {
+            debug('status', 'Error: #ar-scene no existe.');
+            return;
+        };
 
         // Iniciar el "vigilante" para mover el contenedor
         const interval = setInterval(() => {
-          // Buscar el contenedor de video que MindAR crea en el <body>
+          
+          // **** ¡ESTA ES LA LÍNEA CORREGIDA! ****
+          // Busca el contenedor SÓLO si es hijo directo del BODY
           const container = document.querySelector('body > .mindar-ui-container');
           
           if (container) {
-            // ¡LO ENCONTRAMOS!
-            clearInterval(interval); // 1. Detener el vigilante
-            arScene.appendChild(container); // 2. Mover el contenedor dentro de #ar-scene
+            // ¡LO ENCONTRAMOS "SUELTO"!
+            
+            // 1. Detener el vigilante. ¡YA NO BUSQUES MÁS!
+            clearInterval(interval); 
+            
+            // 2. Mover el contenedor dentro de #ar-scene
+            arScene.appendChild(container); 
             debug('status', 'Contenedor AR movido!');
             
             // 3. Forzar los estilos (por si acaso)
@@ -522,7 +529,7 @@
             container.style.zIndex = '1';
 
           } else {
-            // Aún no aparece, seguimos esperando...
+            // Aún no aparece "suelto", seguimos esperando...
             debug('status', 'Buscando contenedor (post-arReady)...');
           }
         }, 200); // Revisar 5 veces por segundo
@@ -534,9 +541,6 @@
 
       });
       // --- FIN DE LA SOLUCIÓN JS ---
-
-      // El resto de tu código de lógica de AR (targets, botones, etc.)
-      // se queda exactamente igual.
 
       const targetMap = [
         { start: 0, end: 3, textureId: 'mexico-texture' },       
