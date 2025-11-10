@@ -117,47 +117,37 @@
     }
 
     /* --- INICIO DE LA SOLUCIÓN (CSS) --- */
-    /* Este CSS es el mismo que antes, y es el correcto.
-       El problema era el JS, no el CSS. */
+    /* Este CSS está correcto, el problema era el JS */
 
-    /* 1. Tu recuadro principal. Define la 'ventana' y recorta. */
     #ar-scene {
       width: 90%;
       max-width: 500px;
       height: 70vh;
       max-height: 600px;
-      
-      position: relative !important; /* CLAVE: para que los hijos 'absolute' se basen en él */
+      position: relative !important;
       z-index: 1;
-      
       border-radius: 20px;
-      overflow: hidden; /* CLAVE: para recortar el video */
+      overflow: hidden; /* CLAVE: recorta el video */
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       border: 3px solid rgba(255, 255, 255, 0.3);
-      
       background: transparent !important;
     }
 
-    /* 2. El contenedor de MindAR (que el JS moverá aquí).
-       Lo forzamos a ser una capa absoluta que llena #ar-scene. */
     .mindar-ui-container {
       position: absolute !important; 
       top: 0 !important;
       left: 0 !important;
       width: 100% !important;
       height: 100% !important;
-      
       bottom: unset !important;
       right: unset !important;
       z-index: 1 !important; /* Capa 1 (abajo) */
       background: transparent !important;
-      
       border: none !important;
       box-shadow: none !important;
       border-radius: 0 !important;
     }
 
-    /* 3. El VIDEO dentro del contenedor. */
     .mindar-ui-container video {
       position: absolute !important;
       top: 0 !important;
@@ -165,10 +155,9 @@
       width: 100% !important;
       height: 100% !important;
       object-fit: cover !important; /* Rellena el espacio */
-      z-index: 1 !important; /* Sigue en la capa 1 */
+      z-index: 1 !important;
     }
 
-    /* 4. El CANVAS 3D de A-Frame (la bandera). */
     #ar-scene canvas {
       position: absolute !important;
       top: 0 !important;
@@ -180,7 +169,6 @@
       pointer-events: none;
     }
     
-    /* 5. La capa 'overlay' de MindAR. */
     .mindar-ui-overlay {
        position: absolute !important; 
        top: 0 !important;
@@ -490,7 +478,7 @@
   </div>
 
   <a href="index.html" id="home-button">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24">
       <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
     </svg>
   </a>
@@ -557,175 +545,62 @@
 
     /* === INICIO DE LÓGICA DE TRIVIA === */
     
-    // 1. Base de datos de preguntas
-    const triviaQuestions = [
-      { 
-        q: "¿En qué año participó Canadá por primera vez en una Copa del Mundo masculina?", 
-        a: "1986",
-        options: ["1986", "1994", "1978"]
-      },
-      { 
-        q: "¿Cuál es la mejor posición histórica de EE.UU. en una Copa del Mundo?", 
-        a: "Tercer lugar (en 1930)",
-        options: ["Tercer lugar (en 1930)", "Cuartos de final (en 2002)", "Octavos de final (en 1994)"]
-      },
-      { 
-        q: "¿Cuántas veces México ha sido sede de la Copa del Mundo (contando 2026)?", 
-        a: "Tres veces",
-        options: ["Tres veces", "Dos veces", "Una vez"]
-      },
-      // ... (el resto de tus preguntas de trivia van aquí) ...
-      { 
-        q: "¿En qué Mundial, Túnez se convirtió en el primer equipo africano en ganar un partido?", 
-        a: "Mundial de 1978",
-        options: ["Mundial de 1978", "Mundial de 1982", "Mundial de 1990"]
-      }
-    ];
-
-    // 2. Función para mezclar un array
-    function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
-
-    let currentQuestions = []; // Guardará las 5 preguntas actuales
-
-    // 3. Función para mostrar la trivia
-    function showTrivia() {
-      $('trivia-content').innerHTML = '';
-      $('trivia-results').innerHTML = '';
-      $('trivia-submit').style.display = 'block'; 
-      
-      currentQuestions = shuffleArray([...triviaQuestions]).slice(0, 5);
-      
-      currentQuestions.forEach((item, index) => {
-        const questionId = `q${index}`;
-        const shuffledOptions = shuffleArray([...item.options]);
-        
-        const optionsHtml = shuffledOptions.map(option => `
-          <label>
-            <input type="radio" name="${questionId}" value="${option}">
-            ${option}
-          </label>
-        `).join('');
-        
-        const questionHtml = `
-          <div class="trivia-question" data-correct-answer="${item.a}">
-            <h3>${index + 1}. ${item.q}</h3>
-            <div class="trivia-options">
-              ${optionsHtml}
-            </div>
-          </div>
-        `;
-        $('trivia-content').innerHTML += questionHtml;
-      });
-      
-      $('trivia-modal').style.display = 'flex';
-    }
-
-    // 4. Función para cerrar la trivia
-    function hideTrivia() {
-      $('trivia-modal').style.display = 'none';
-    }
-
-    // 5. Función para revisar las respuestas
-    function checkTriviaAnswers() {
-      $('trivia-submit').style.display = 'none'; 
-      $('trivia-results').innerHTML = ''; 
-      
-      const questionElements = document.querySelectorAll('.trivia-question');
-      let correctCount = 0;
-      
-      questionElements.forEach((qEl, index) => {
-        const selectedInput = qEl.querySelector('input[type="radio"]:checked');
-        const correctAnswer = qEl.getAttribute('data-correct-answer');
-        const questionText = currentQuestions[index].q;
-
-        let resultHtml = '';
-        if (selectedInput && selectedInput.value === correctAnswer) {
-          correctCount++;
-          resultHtml = `
-            <div class="trivia-result-item correct">
-              <b>Pregunta ${index + 1}: ¡Correcto!</b><br>
-              ${questionText}
-            </div>
-          `;
-        } else {
-          resultHtml = `
-            <div class="trivia-result-item incorrect">
-              <b>Pregunta ${index + 1}: Incorrecto.</b><br>
-              <i>Respuesta correcta: ${correctAnswer}</i>
-            </div>
-          `;
-        }
-        $('trivia-results').innerHTML += resultHtml;
-      });
-      
-      $('trivia-results').innerHTML = `<h3>Acertaste ${correctCount} de 5</h3>` + $('trivia-results').innerHTML;
-    }
+    // (Tu lógica de trivia está aquí... la he colapsado por claridad)
+    const triviaQuestions = [ { q: "¿En qué año participó Canadá por primera vez en una Copa del Mundo masculina?", a: "1986", options: ["1986", "1994", "1978"] }, { q: "¿Cuál es la mejor posición histórica de EE.UU. en una Copa del Mundo?", a: "Tercer lugar (en 1930)", options: ["Tercer lugar (en 1930)", "Cuartos de final (en 2002)", "Octavos de final (en 1994)"] }, { q: "¿Cuántas veces México ha sido sede de la Copa del Mundo (contando 2026)?", a: "Tres veces", options: ["Tres veces", "Dos veces", "Una vez"] }, { q: "¿Quién es el máximo goleador histórico de Argentina en Mundiales?", a: "Lionel Messi", options: ["Lionel Messi", "Gabriel Batistuta", "Diego Maradona"] }, { q: "¿Qué país, además de Brasil, ha jugado todas las ediciones del Mundial?", a: "Ninguno (Brasil es el único)", options: ["Ninguno (Brasil es el único)", "Alemania", "Italia", "Argentina"] }, { q: "¿Cuál fue el rival de Ecuador en su partido inaugural en Qatar 2022?", a: "Qatar", options: ["Qatar", "Senegal", "Países Bajos"] }, { q: "¿Qué país fue el primer campeón mundial en 1930?", a: "Uruguay", options: ["Uruguay", "Argentina", "Italia"] }, { q: "¿Qué jugador colombiano ganó el Botín de Oro en el Mundial de 2014?", a: "James Rodríguez", options: ["James Rodríguez", "Radamel Falcao", "Thomas Müller"] }, { q: "¿Cuál ha sido la mejor actuación histórica de Paraguay en un Mundial?", a: "Cuartos de final (2010)", options: ["Cuartos de final (2010)", "Octavos de final", "Fase de grupos"] }, { q: "¿Cómo se le conoce popularmente a la selección de Japón?", a: "Samurai Blue", options: ["Samurai Blue", "Los Dragones Azules", "Guerreros del Sol"] }, { q: "¿En qué Mundial logró Irán su primera victoria en la historia del torneo?", a: "Mundial de 1998", options: ["Mundial de 1998", "Mundial de 1978", "Mundial de 2006"] }, { q: "¿Junto a qué país organizó Corea del Sur el Mundial de 2002?", a: "Japón", options: ["Japón", "China", "Tailandia"] }, { q: "¿Qué hito logró Jordania al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Ser anfitrión"] }, { q: "¿Qué hito logró Uzbekistán al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Llegar a semifinales"] }, { q: "¿A qué confederación futbolística pertenece Australia desde 2006?", a: "Asiática (AFC)", options: ["Asiática (AFC)", "Oceanía (OFC)", "UEFA (Europa)"] }, { q: "¿Cuál es el apodo de la selección de Nueva Zelanda?", a: "All Whites", options: ["All Whites", "All Blacks", "Los Kiwis"] }, { q: "¿Qué selección africana fue la primera en llegar a semifinales (en 2022)?", a: "Marruecos", options: ["Marruecos", "Senegal", "Camerún", "Ghana"] }, { q: "¿En qué Mundial, Túnez se convirtió en el primer equipo africano en ganar un partido?", a: "Mundial de 1978", options: ["Mundial de 1978", "Mundial de 1982", "Mundial de 1990"] } ];
+    function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
+    let currentQuestions = [];
+    function showTrivia() { $('trivia-content').innerHTML = ''; $('trivia-results').innerHTML = ''; $('trivia-submit').style.display = 'block'; currentQuestions = shuffleArray([...triviaQuestions]).slice(0, 5); currentQuestions.forEach((item, index) => { const questionId = `q${index}`; const shuffledOptions = shuffleArray([...item.options]); const optionsHtml = shuffledOptions.map(option => ` <label> <input type="radio" name="${questionId}" value="${option}"> ${option} </label> `).join(''); const questionHtml = ` <div class="trivia-question" data-correct-answer="${item.a}"> <h3>${index + 1}. ${item.q}</h3> <div class="trivia-options"> ${optionsHtml} </div> </div> `; $('trivia-content').innerHTML += questionHtml; }); $('trivia-modal').style.display = 'flex'; }
+    function hideTrivia() { $('trivia-modal').style.display = 'none'; }
+    function checkTriviaAnswers() { $('trivia-submit').style.display = 'none'; $('trivia-results').innerHTML = ''; const questionElements = document.querySelectorAll('.trivia-question'); let correctCount = 0; questionElements.forEach((qEl, index) => { const selectedInput = qEl.querySelector('input[type="radio"]:checked'); const correctAnswer = qEl.getAttribute('data-correct-answer'); const questionText = currentQuestions[index].q; let resultHtml = ''; if (selectedInput && selectedInput.value === correctAnswer) { correctCount++; resultHtml = ` <div class="trivia-result-item correct"> <b>Pregunta ${index + 1}: ¡Correcto!</b><br> ${questionText} </div> `; } else { resultHtml = ` <div class="trivia-result-item incorrect"> <b>Pregunta ${index + 1}: Incorrecto.</b><br> <i>Respuesta correcta: ${correctAnswer}</i> </div> `; } $('trivia-results').innerHTML += resultHtml; }); $('trivia-results').innerHTML = `<h3>Acertaste ${correctCount} de 5</h3>` + $('trivia-results').innerHTML; }
+    
     /* === FIN DE LÓGICA DE TRIVIA === */
-
-
-    // --- INICIO DE LA SOLUCIÓN JS (MÁS ROBUSTA PARA MÓVILES) ---
-    function moveMindARContainer() {
-      debug('status', 'Buscando contenedor MindAR...');
-      const arScene = document.getElementById('ar-scene');
-      
-      if (!arScene) {
-        debug('status', 'Error: #ar-scene no encontrado.');
-        return;
-      }
-
-      // Usar un intervalo para esperar a que MindAR cree el elemento
-      const interval = setInterval(() => {
-        const container = document.querySelector('.mindar-ui-container');
-        
-        if (container) {
-          // ¡Lo encontramos!
-          clearInterval(interval); // Detener la búsqueda
-          
-          // Moverlo físicamente al DOM dentro de #ar-scene
-          arScene.appendChild(container);
-          debug('status', 'Contenedor AR movido.');
-          
-          // Forzar re-aplicación de estilos (a veces necesario en mobile)
-          container.style.position = 'absolute';
-          container.style.zIndex = '1';
-          
-        } else {
-          // Aún no está listo, el vigilante sigue buscando...
-          debug('status', 'Esperando contenedor MindAR...');
-        }
-      }, 200); // Revisar cada 200ms
-
-      // Poner un límite de tiempo para no buscar indefinidamente
-      setTimeout(() => {
-        clearInterval(interval); // Detener el vigilante después de 5 seg
-      }, 5000); 
-    }
-    // --- FIN DE LA SOLUCIÓN JS ---
 
 
     /* === INICIO DE LÓGICA DE AR === */
     document.addEventListener('DOMContentLoaded', () => {
       
       const sceneEl = $('ar-scene');
-      
-      // *** ESTE ES EL GRAN CAMBIO ***
-      // NO llamamos a moveMindARContainer() inmediatamente.
-      // Esperamos a que la escena de A-Frame esté 100% CARGADA.
-      if (sceneEl.hasLoaded) {
-        moveMindARContainer();
-      } else {
-        sceneEl.addEventListener('loaded', moveMindARContainer);
-      }
-      
       const buttonContainer = $('button-container');
       
-      debug('status', 'Inicializado');
+      debug('status', 'DOM Cargado. Esperando AR...');
+
+      // --- INICIO DE LA SOLUCIÓN JS v5 (ESPERA A arReady) ---
+      // Esta es la forma más robusta. Escuchamos al evento 'arReady'
+      // que MindAR dispara CUANDO la cámara y la UI están listas.
+      sceneEl.addEventListener('arReady', () => {
+        debug('status', 'Evento arReady detectado!');
+        const arScene = document.getElementById('ar-scene');
+        if (!arScene) return;
+
+        // Iniciar el "vigilante" para mover el contenedor
+        const interval = setInterval(() => {
+          const container = document.querySelector('.mindar-ui-container');
+          
+          if (container) {
+            // ¡LO ENCONTRAMOS!
+            clearInterval(interval); // 1. Detener el vigilante
+            arScene.appendChild(container); // 2. Mover el contenedor
+            debug('status', 'Contenedor AR movido!');
+            
+            // 3. Forzar los estilos (por si acaso)
+            container.style.position = 'absolute';
+            container.style.zIndex = '1';
+
+          } else {
+            // Aún no aparece, seguimos esperando...
+            debug('status', 'Buscando contenedor (post-arReady)...');
+          }
+        }, 200); // Revisar 5 veces por segundo
+
+        // Poner un límite de 15 segundos. Si en 15s después de 'arReady'
+        // no aparece, algo más está mal.
+        setTimeout(() => {
+          clearInterval(interval); 
+        }, 15000);
+
+      });
+      // --- FIN DE LA SOLUCIÓN JS v5 ---
+
 
       const targetMap = [
         { start: 0, end: 3, textureId: 'mexico-texture' },       
