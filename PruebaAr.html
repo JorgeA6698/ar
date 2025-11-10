@@ -109,15 +109,27 @@
       height: 100vh;
       position: fixed;
       font-family: Arial, sans-serif;
+      
+      /* === CAMBIO === Fondo de index.html añadido */
+      background: linear-gradient(135deg, #006341, #BF0A30, #002868);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
+    /* === CAMBIO === #ar-scene ahora es un recuadro centrado */
     #ar-scene {
-      width: 100%;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
+      width: 90%; /* Ancho relativo */
+      max-width: 500px; /* Ancho máximo */
+      height: 70vh; /* Alto relativo */
+      max-height: 600px; /* Alto máximo */
+      position: relative; /* Ya no es 'fixed' */
       z-index: 1;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      border: 3px solid rgba(255, 255, 255, 0.3);
     }
     
     #home-button {
@@ -696,6 +708,16 @@
     
     }); // <-- Llave de cierre para 'DOMContentLoaded'
     /* === FIN DE LÓGICA DE AR === */
+    
+    // Función para el menú hamburguesa (fuera de DOMContentLoaded)
+    function toggleNav() {
+      var nav = document.getElementById("mySidenav");
+      if (nav.style.width === "250px") {
+        nav.style.width = "0";
+      } else {
+        nav.style.width = "250px";
+      }
+    }
   </script>
 </body>
 </html>
