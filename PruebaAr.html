@@ -116,85 +116,86 @@
       justify-content: center;
     }
 
-    /* --- INICIO DE LA SOLUCIÓN DEFINITIVA --- */
+    /* --- INICIO DE LA SOLUCIÓN (LA TERCERA ES LA VENCIDA) --- */
 
-    /* 1. Hacemos que el contenedor de A-Frame (#ar-scene)
-          sea el que define la forma y el tamaño.
-          Lo centramos con 'relative' en el flexbox. */
+    /* 1. Tu recuadro principal. Esto está perfecto.
+       Define la 'ventana' y recorta todo lo que se salga. */
     #ar-scene {
       width: 90%;
       max-width: 500px;
       height: 70vh;
       max-height: 600px;
       
-      position: relative !important; /* 'relative' para el flexbox */
+      position: relative !important; /* CLAVE: para que los hijos 'absolute' se basen en él */
       z-index: 1;
       
       border-radius: 20px;
-      overflow: hidden; /* ¡La clave! Recorta todo lo de adentro */
+      overflow: hidden; /* CLAVE: para recortar el video */
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       border: 3px solid rgba(255, 255, 255, 0.3);
       
-      /* Hacemos transparente el fondo de A-Frame */
       background: transparent !important;
     }
 
-    /* 2. Forzamos a los contenedores de MindAR (que son 'fixed' 
-          y a pantalla completa) a que se pongan *DENTRO* de nuestro #ar-scene y tomen su forma. */
-    .mindar-ui-container,
-    .mindar-ui-overlay,
-    .mindar-ui-container video {
-      /* Los forzamos a ser 'absolute' RELATIVO a #ar-scene */
+    /* 2. El contenedor de MindAR (que el JS moverá aquí).
+       Lo forzamos a ser una capa absoluta que llena #ar-scene. */
+    .mindar-ui-container {
       position: absolute !important; 
-      
-      /* Hacemos que llenen #ar-scene */
       top: 0 !important;
       left: 0 !important;
       width: 100% !important;
       height: 100% !important;
       
-      /* Reseteamos cualquier otra cosa */
-      max-width: none !important;
-      max-height: none !important;
+      /* Reseteamos cualquier estilo 'fixed' que MindAR intente poner */
       bottom: unset !important;
       right: unset !important;
+      z-index: 1 !important; /* Capa 1 (abajo) */
+      background: transparent !important;
       
-      /* El video debe llenar la caja */
-      object-fit: cover; 
-      
-      /* Sin bordes ni sombras duplicadas */
+      /* Quitamos bordes/sombras que ya no aplican */
       border: none !important;
       box-shadow: none !important;
       border-radius: 0 !important;
-      
-      /* Fondos transparentes */
-      background: transparent !important;
     }
 
-    /* 3. Nos aseguramos de que el CANVAS 3D (la bandera) 
-          esté ENCIMA del video. */
+    /* 3. El VIDEO dentro del contenedor de MindAR.
+       Lo forzamos a llenar el contenedor. */
+    .mindar-ui-container video {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important; /* Rellena el espacio */
+      z-index: 1 !important; /* Sigue en la capa 1 */
+    }
+
+    /* 4. El CANVAS 3D de A-Frame (la bandera).
+       Lo ponemos encima del video. */
     #ar-scene canvas {
       position: absolute !important;
-      z-index: 2 !important; /* Canvas encima */
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
       object-fit: cover;
+      z-index: 2 !important; /* Capa 2 (encima) */
+      pointer-events: none; /* Permite clics 'a través' si es necesario */
     }
-
-    /* 4. El video debe estar DETRÁS. */
-    .mindar-ui-container video {
-      z-index: 1 !important; /* Video detrás */
-    }
-
-    /* 5. La capa de "UI" (si la hubiera) encima de todo. */
+    
+    /* 5. La capa 'overlay' de MindAR (botones, etc.)
+       Va encima de todo. */
     .mindar-ui-overlay {
-       z-index: 3 !important;
-       pointer-events: none; /* Para que no bloquee clics al canvas */
+       position: absolute !important; 
+       top: 0 !important;
+       left: 0 !important;
+       width: 100% !important;
+       height: 100% !important;
+       z-index: 3 !important; /* Capa 3 (arriba) */
+       pointer-events: none; /* No bloquea la escena */
     }
     /* --- FIN DE LA SOLUCIÓN --- */
-    
+
     /* Logo MundiAR */
     .logo {
       position: fixed;
@@ -741,8 +742,31 @@
     /* === FIN DE LÓGICA DE TRIVIA === */
 
 
+    // --- INICIO DE LA SOLUCIÓN JS (NUEVO) ---
+    // Esta función busca el contenedor de MindAR y lo MUEVE 
+    // físicamente adentro de nuestro recuadro #ar-scene.
+    function moveMindARContainer() {
+      const container = document.querySelector('.mindar-ui-container');
+      const arScene = document.getElementById('ar-scene');
+
+      if (container && arScene) {
+        // Lo encontramos. ¡Lo movemos!
+        arScene.appendChild(container);
+        debug('status', 'Contenedor AR movido.');
+      } else {
+        // Aún no se ha creado, reintentamos pronto.
+        setTimeout(moveMindARContainer, 100);
+      }
+    }
+    // --- FIN DE LA SOLUCIÓN JS ---
+
+
     /* === INICIO DE LÓGICA DE AR === */
     document.addEventListener('DOMContentLoaded', () => {
+      
+      // *** NUEVO: LLAMAMOS A LA FUNCIÓN DE CORRECCIÓN ***
+      moveMindARContainer();
+      
       const sceneEl = $('ar-scene');
       const buttonContainer = $('button-container');
       
