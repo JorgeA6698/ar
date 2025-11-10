@@ -116,53 +116,85 @@
       justify-content: center;
     }
 
-/* AQUÍ ESTÁ LA SOLUCIÓN:
-      Forzamos a los contenedores de MindAR a tener el mismo
-      tamaño y posición que tu recuadro #ar-scene.
-    */
-    #ar-scene,
-    .mindar-ui-container,
-    .mindar-ui-overlay {
+    /* --- INICIO DE LA SOLUCIÓN DEFINITIVA --- */
+
+    /* 1. Hacemos que el contenedor de A-Frame (#ar-scene)
+          sea el que define la forma y el tamaño.
+          Lo centramos con 'relative' en el flexbox. */
+    #ar-scene {
       width: 90%;
       max-width: 500px;
       height: 70vh;
       max-height: 600px;
-      position: relative !important; /* Importante para sobreescribir el 'position: fixed' de MindAR */
+      
+      position: relative !important; /* 'relative' para el flexbox */
       z-index: 1;
+      
       border-radius: 20px;
-      overflow: hidden;
+      overflow: hidden; /* ¡La clave! Recorta todo lo de adentro */
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       border: 3px solid rgba(255, 255, 255, 0.3);
       
-      /* Reseteamos los valores de pantalla completa de MindAR */
-      top: unset !important;
-      left: unset !important;
-      bottom: unset !important;
-      right: unset !important;
-
-      /* Aseguramos que el fondo sea transparente */
+      /* Hacemos transparente el fondo de A-Frame */
       background: transparent !important;
     }
 
-    #ar-scene canvas,
-    #ar-scene video {
+    /* 2. Forzamos a los contenedores de MindAR (que son 'fixed' 
+          y a pantalla completa) a que se pongan *DENTRO* de nuestro #ar-scene y tomen su forma. */
+    .mindar-ui-container,
+    .mindar-ui-overlay,
+    .mindar-ui-container video {
+      /* Los forzamos a ser 'absolute' RELATIVO a #ar-scene */
       position: absolute !important; 
+      
+      /* Hacemos que llenen #ar-scene */
       top: 0 !important;
       left: 0 !important;
       width: 100% !important;
       height: 100% !important;
-      object-fit: cover; /* Asegura que el video llene el recuadro */
-    }
-    #ar-scene canvas,
-    #ar-scene video {
-      position: absolute !important; 
-      top: 0 !important;
-      left: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: cover; /* Asegura que el video llene el recuadro */
+      
+      /* Reseteamos cualquier otra cosa */
+      max-width: none !important;
+      max-height: none !important;
+      bottom: unset !important;
+      right: unset !important;
+      
+      /* El video debe llenar la caja */
+      object-fit: cover; 
+      
+      /* Sin bordes ni sombras duplicadas */
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      
+      /* Fondos transparentes */
+      background: transparent !important;
     }
 
+    /* 3. Nos aseguramos de que el CANVAS 3D (la bandera) 
+          esté ENCIMA del video. */
+    #ar-scene canvas {
+      position: absolute !important;
+      z-index: 2 !important; /* Canvas encima */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* 4. El video debe estar DETRÁS. */
+    .mindar-ui-container video {
+      z-index: 1 !important; /* Video detrás */
+    }
+
+    /* 5. La capa de "UI" (si la hubiera) encima de todo. */
+    .mindar-ui-overlay {
+       z-index: 3 !important;
+       pointer-events: none; /* Para que no bloquee clics al canvas */
+    }
+    /* --- FIN DE LA SOLUCIÓN --- */
+    
     /* Logo MundiAR */
     .logo {
       position: fixed;
@@ -301,8 +333,6 @@
       transform: scale(0.85);
       color: white;
     }
-
-
 
     #animate-button {
       background-color: rgba(0, 200, 0, 0.95);
