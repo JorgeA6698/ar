@@ -34,7 +34,6 @@
             setTimeout(tryChangeTexture, 200);
             return;
           }
-          
           if (!model) return;
           
           model.traverse((node) => {
@@ -111,7 +110,7 @@
       font-family: Arial, sans-serif;
     }
 
-    /* ESTO ES LO QUE PIDE LA CÁMARA A PANTALLA COMPLETA */
+    /* La escena AR (lienzo) va al fondo a pantalla completa */
     #ar-scene {
       width: 100%;
       height: 100vh;
@@ -121,9 +120,7 @@
       z-index: 1; /* La AR va de fondo */
     }
 
-    /* --- CSS PARA EL LOGO Y MENÚ (AÑADIDO) --- */
-
-    /* Logo MundiAR */
+    /* --- CSS PARA EL LOGO Y MENÚ --- */
     .logo {
       position: fixed;
       top: 20px;
@@ -132,16 +129,15 @@
       font-weight: bold;
       color: white;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-      z-index: 999999; /* Encima de todo */
+      z-index: 999999; 
       letter-spacing: 1px;
     }
     
-    /* Menú hamburguesa */
     .menu-icon {
       position: fixed;
       top: 20px;
       right: 20px;
-      z-index: 999999; /* Encima de todo */
+      z-index: 999999; 
       cursor: pointer;
     }
     
@@ -154,12 +150,11 @@
       border-radius: 2px;
     }
     
-    /* Panel del menú lateral */
     .side-nav {
       height: 100%;
-      width: 0; /* Oculto por defecto */
+      width: 0; 
       position: fixed;
-      z-index: 999998; /* Un poco detrás del icono */
+      z-index: 999998; 
       top: 0;
       right: 0;
       background-color: rgba(0, 40, 104, 0.95);
@@ -202,7 +197,7 @@
       display: flex !important;
       align-items: center;
       justify-content: center;
-      z-index: 999997; /* Justo debajo del menú */
+      z-index: 999997; 
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       transition: transform 0.1s ease;
       text-decoration: none;
@@ -228,7 +223,7 @@
       position: fixed !important;
       bottom: 15px !important;
       right: 15px !important;
-      z-index: 999997; /* Justo debajo del menú */
+      z-index: 999997; 
       display: flex !important;
       flex-direction: column !important;
       gap: 10px;
@@ -283,8 +278,8 @@
       pointer-events: none;
     }
     
-    /* === INICIO DE ESTILOS PARA TRIVIA === */
-    #trivia-modal {
+    /* === Estilos para los Modales (Trivia, Stats, Info) === */
+    #trivia-modal, #stats-modal, #info-modal {
       position: fixed;
       top: 0;
       left: 0;
@@ -299,7 +294,7 @@
       box-sizing: border-box;
     }
     
-    .trivia-container {
+    .trivia-container, .stats-container, .info-container {
       background-color: white;
       border-radius: 10px;
       padding: 20px;
@@ -311,7 +306,7 @@
       position: relative;
     }
     
-    .trivia-close-btn {
+    .trivia-close-btn, .stats-close-btn, .info-close-btn {
       position: absolute;
       top: 10px;
       right: 15px;
@@ -321,10 +316,11 @@
       cursor: pointer;
       line-height: 1;
     }
-    .trivia-close-btn:hover {
+    .trivia-close-btn:hover, .stats-close-btn:hover, .info-close-btn:hover {
       color: #000;
     }
     
+    /* Estilos específicos de Trivia */
     .trivia-question {
       margin-bottom: 20px;
       border-bottom: 1px solid #eee;
@@ -388,63 +384,21 @@
       border-color: #ebccd1;
       color: #a94442;
     }
-    /* === FIN DE ESTILOS PARA TRIVIA === */
 
-    /* === INICIO DE ESTILOS PARA ESTADÍSTICAS (NUEVO) === */
-    #stats-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.6);
-      z-index: 1000000;
-      display: none; /* Oculto por defecto */
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      box-sizing: border-box;
-    }
-    
-    .stats-container {
-      background-color: white;
-      border-radius: 10px;
-      padding: 20px;
-      width: 100%;
-      max-width: 500px;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      position: relative;
-    }
-    
-    .stats-close-btn {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      font-size: 28px;
-      font-weight: bold;
-      color: #888;
-      cursor: pointer;
-      line-height: 1;
-    }
-    .stats-close-btn:hover {
-      color: #000;
-    }
-    
-    #stats-content h3 {
+    /* Estilos específicos de Stats e Info */
+    #stats-content h3, #info-content h3 {
        margin-top: 0;
        color: #002868; /* Color del tema */
        border-bottom: 2px solid #eee;
        padding-bottom: 10px;
     }
     
-    #stats-content ul {
+    #stats-content ul, #info-content ul {
       list-style-type: none;
       padding-left: 0;
     }
     
-    #stats-content li {
+    #stats-content li, #info-content li {
       background-color: #f4f4f4;
       padding: 10px;
       border-radius: 5px;
@@ -452,29 +406,26 @@
       font-size: 14px;
     }
     
-    #stats-content li strong {
+    #stats-content li strong, #info-content li strong {
       color: #333;
     }
-    /* === FIN DE ESTILOS PARA ESTADÍSTICAS === */
-
   </style>
 </head>
 <body>
 
   <div class="logo">MundiAR</div>
-
   <div class="menu-icon" onclick="toggleNav()">
     <div class="bar"></div>
     <div class="bar"></div>
     <div class="bar"></div>
   </div>
-
   <div id="mySidenav" class="side-nav">
     <a href="index.html">Inicio</a>
     <a href="video.html">Video</a>
     <a href="trivia.html">Trivia</a>
     <a href="PruebaAr.html" class="active">AR</a>
   </div>
+  
   <div id="debug-info">
     <div>Status: <span id="d-status">Cargando...</span></div>
     <div>Targets: <span id="d-targets">0</span></div>
@@ -490,17 +441,15 @@
   <div id="button-container">
     <button class="action-button" id="animate-button">▶️</button>
     <button class="action-button" id="estadisticas">📊</button>
-    <button class="action-button" id="Trivia">❔</button>
+    <button class="action-button" id="info">ℹ️</button> <button class="action-button" id="Trivia">❔</button>
   </div>
   
   <div id="trivia-modal">
     <div class="trivia-container">
       <span class="trivia-close-btn" id="trivia-close">&times;</span>
       <h2>Trivia del Mundial</h2>
-      <div id="trivia-content">
-        </div>
-      <div id="trivia-results">
-        </div>
+      <div id="trivia-content"></div>
+      <div id="trivia-results"></div>
       <button id="trivia-submit">Enviar</button>
     </div>
   </div>
@@ -509,8 +458,15 @@
     <div class="stats-container">
       <span class="stats-close-btn" id="stats-close">&times;</span>
       <h2>Estadísticas del País</h2>
-      <div id="stats-content">
-        </div>
+      <div id="stats-content"></div>
+    </div>
+  </div>
+
+  <div id="info-modal">
+    <div class="info-container">
+      <span class="info-close-btn" id="info-close">&times;</span>
+      <h2>Datos Curiosos</h2>
+      <div id="info-content"></div>
     </div>
   </div>
 
@@ -549,7 +505,7 @@
  <script>
     /* ----- SCRIPT 2: LÓGICA DE LA APLICACIÓN (UNIFICADA) ----- */
 
-    // --- Funciones de Ayuda (Definidas 1 sola vez) ---
+    // --- Funciones de Ayuda (Globales) ---
     const $ = (id) => document.getElementById(id);
     const debug = (key, val) => {
       const el = $(`d-${key}`);
@@ -558,158 +514,62 @@
 
     /* === BASE DE DATOS DE ESTADÍSTICAS === */
     const statsData = {
-      'argentina-texture': {
-        pais: 'Argentina',
-        mundiales: '18',
-        primeraVez: '1930',
-        goles: '137',
-        jugadores: 'Lionel Messi, Diego Maradona, Gabriel Batistuta'
-      },
-      'australia-texture': {
-        pais: 'Australia',
-        mundiales: '6',
-        primeraVez: '1974',
-        goles: '17',
-        jugadores: 'Tim Cahill, Mark Viduka, Harry Kewell'
-      },
-      'brasil-texture': {
-        pais: 'Brasil',
-        mundiales: '22',
-        primeraVez: '1930',
-        goles: '237',
-        jugadores: 'Pelé, Ronaldo Nazário, Garrincha, Neymar'
-      },
-      'canada-texture': {
-        pais: 'Canadá',
-        mundiales: '2',
-        primeraVez: '1986',
-        goles: '2',
-        jugadores: 'Alphonso Davies, Jonathan David, Cyle Larin, Atiba Hutchinson'
-      },
-      'colombia-texture': {
-        pais: 'Colombia',
-        mundiales: '6',
-        primeraVez: '1962',
-        goles: '20',
-        jugadores: 'James Rodríguez, Carlos Valderrama, Radamel Falcao'
-      },
-      'coreadelsur-texture': {
-        pais: 'Corea del Sur',
-        mundiales: '11',
-        primeraVez: '1954',
-        goles: '36',
-        jugadores: 'Son Heung-min, Park Ji-Sung, Cha Bum-Kun'
-      },
-      'ecuador-texture': {
-        pais: 'Ecuador',
-        mundiales: '4',
-        primeraVez: '2002',
-        goles: '12',
-        jugadores: 'Enner Valencia, Antonio Valencia, Alberto Spencer'
-      },
-      'usa-texture': {
-        pais: 'Estados Unidos',
-        mundiales: '11',
-        primeraVez: '1930',
-        goles: '45',
-        jugadores: 'Landon Donovan, Clint Dempsey, Christian Pulisic'
-      },
-      'iran-texture': {
-        pais: 'Irán',
-        mundiales: '6',
-        primeraVez: '1978',
-        goles: '9',
-        jugadores: 'Ali Daei, Mehdi Taremi, Sardar Azmoun'
-      },
-      'japon-texture': {
-        pais: 'Japón',
-        mundiales: '7',
-        primeraVez: '1998',
-        goles: '23',
-        jugadores: 'Hidetoshi Nakata, Shunsuke Nakamura, Keisuke Honda, Kunishige Kamamoto'
-      },
-      'jordania-texture': {
-        pais: 'Jordania',
-        mundiales: '0',
-        primeraVez: '2026',
-        goles: '0',
-        jugadores: 'Musa Al-Taamari, Hamza Al-Daradour'
-      },
-      'marruecos-texture': {
-        pais: 'Marruecos',
-        mundiales: '6',
-        primeraVez: '1970',
-        goles: '17',
-        jugadores: 'Achraf Hakimi, Hakim Ziyech, Yassine Bounou, Mustapha Hadji'
-      },
-      'mexico-texture': {
-        pais: 'México',
-        mundiales: '17',
-        primeraVez: '1930',
-        goles: '60',
-        jugadores: 'Hugo Sánchez, Cuauhtémoc Blanco, Antonio Carbajal, Javier Hernández'
-      },
-      'nuevazelanda-texture': {
-        pais: 'Nueva Zelanda',
-        mundiales: '2',
-        primeraVez: '1982',
-        goles: '4',
-        jugadores: 'Wynton Rufer, Ryan Nelsen, Chris Wood'
-      },
-      'paraguay-texture': {
-        pais: 'Paraguay',
-        mundiales: '8',
-        primeraVez: '1930',
-        goles: '27',
-        jugadores: 'José Luis Chilavert, Roque Santa Cruz, José Saturnino Cardozo'
-      },
-      'tunez-texture': {
-        pais: 'Túnez',
-        mundiales: '6',
-        primeraVez: '1978',
-        goles: '13',
-        jugadores: 'Wahbi Khazri, Tarak Dhiab, Radhi Jaïdi'
-      },
-      'uruguay-texture': {
-        pais: 'Uruguay',
-        mundiales: '14',
-        primeraVez: '1930',
-        goles: '88',
-        jugadores: 'Luis Suárez, Edinson Cavani, Diego Forlán, Juan Alberto Schiaffino'
-      },
-      'uzbekistan-texture': {
-        pais: 'Uzbekistán',
-        mundiales: '0',
-        primeraVez: '2026',
-        goles: '0',
-        jugadores: 'Eldor Shomurodov, Server Djeparov'
-      }
+      'argentina-texture': { pais: 'Argentina', mundiales: '18', primeraVez: '1930', goles: '137', jugadores: 'Lionel Messi, Diego Maradona, Gabriel Batistuta' },
+      'australia-texture': { pais: 'Australia', mundiales: '6', primeraVez: '1974', goles: '17', jugadores: 'Tim Cahill, Mark Viduka, Harry Kewell' },
+      'brasil-texture': { pais: 'Brasil', mundiales: '22', primeraVez: '1930', goles: '237', jugadores: 'Pelé, Ronaldo Nazário, Garrincha, Neymar' },
+      'canada-texture': { pais: 'Canadá', mundiales: '2', primeraVez: '1986', goles: '2', jugadores: 'Alphonso Davies, Jonathan David, Cyle Larin, Atiba Hutchinson' },
+      'colombia-texture': { pais: 'Colombia', mundiales: '6', primeraVez: '1962', goles: '20', jugadores: 'James Rodríguez, Carlos Valderrama, Radamel Falcao' },
+      'coreadelsur-texture': { pais: 'Corea del Sur', mundiales: '11', primeraVez: '1954', goles: '36', jugadores: 'Son Heung-min, Park Ji-Sung, Cha Bum-Kun' },
+      'ecuador-texture': { pais: 'Ecuador', mundiales: '4', primeraVez: '2002', goles: '12', jugadores: 'Enner Valencia, Antonio Valencia, Alberto Spencer' },
+      'usa-texture': { pais: 'Estados Unidos', mundiales: '11', primeraVez: '1930', goles: '45', jugadores: 'Landon Donovan, Clint Dempsey, Christian Pulisic' },
+      'iran-texture': { pais: 'Irán', mundiales: '6', primeraVez: '1978', goles: '9', jugadores: 'Ali Daei, Mehdi Taremi, Sardar Azmoun' },
+      'japon-texture': { pais: 'Japón', mundiales: '7', primeraVez: '1998', goles: '23', jugadores: 'Hidetoshi Nakata, Shunsuke Nakamura, Keisuke Honda, Kunishige Kamamoto' },
+      'jordania-texture': { pais: 'Jordania', mundiales: '0', primeraVez: '2026', goles: '0', jugadores: 'Musa Al-Taamari, Hamza Al-Daradour' },
+      'marruecos-texture': { pais: 'Marruecos', mundiales: '6', primeraVez: '1970', goles: '17', jugadores: 'Achraf Hakimi, Hakim Ziyech, Yassine Bounou, Mustapha Hadji' },
+      'mexico-texture': { pais: 'México', mundiales: '17', primeraVez: '1930', goles: '60', jugadores: 'Hugo Sánchez, Cuauhtémoc Blanco, Antonio Carbajal, Javier Hernández' },
+      'nuevazelanda-texture': { pais: 'Nueva Zelanda', mundiales: '2', primeraVez: '1982', goles: '4', jugadores: 'Wynton Rufer, Ryan Nelsen, Chris Wood' },
+      'paraguay-texture': { pais: 'Paraguay', mundiales: '8', primeraVez: '1930', goles: '27', jugadores: 'José Luis Chilavert, Roque Santa Cruz, José Saturnino Cardozo' },
+      'tunez-texture': { pais: 'Túnez', mundiales: '6', primeraVez: '1978', goles: '13', jugadores: 'Wahbi Khazri, Tarak Dhiab, Radhi Jaïdi' },
+      'uruguay-texture': { pais: 'Uruguay', mundiales: '14', primeraVez: '1930', goles: '88', jugadores: 'Luis Suárez, Edinson Cavani, Diego Forlán, Juan Alberto Schiaffino' },
+      'uzbekistan-texture': { pais: 'Uzbekistán', mundiales: '0', primeraVez: '2026', goles: '0', jugadores: 'Eldor Shomurodov, Server Djeparov' }
     };
 
-    /* === INICIO DE LÓGICA DE TRIVIA === */
-    // (Tu lógica de trivia está aquí... colapsada por claridad)
+    /* === BASE DE DATOS DE INFO (NUEVO) === */
+    const infoData = {
+      'argentina-texture': { pais: 'Argentina', comida: 'Asado', fundacion: '1816' },
+      'australia-texture': { pais: 'Australia', comida: 'Meat Pie', fundacion: '1901' },
+      'brasil-texture': { pais: 'Brasil', comida: 'Feijoada', fundacion: '1822' },
+      'canada-texture': { pais: 'Canadá', comida: 'Poutine', fundacion: '1867' },
+      'colombia-texture': { pais: 'Colombia', comida: 'Bandeja Paisa', fundacion: '1810' },
+      'coreadelsur-texture': { pais: 'Corea del Sur', comida: 'Kimchi', fundacion: '1948' },
+      'ecuador-texture': { pais: 'Ecuador', comida: 'Ceviche', fundacion: '1820' },
+      'usa-texture': { pais: 'Estados Unidos', comida: 'Hamburguesa/Apple Pie', fundacion: '1776' },
+      'iran-texture': { pais: 'Irán', comida: 'Chelo Kabab', fundacion: '1979' },
+      'japon-texture': { pais: 'Japón', comida: 'Sushi/Ramen', fundacion: '1868' },
+      'jordania-texture': { pais: 'Jordania', comida: 'Mansaf', fundacion: '1946' },
+      'marruecos-texture': { pais: 'Marruecos', comida: 'Tajine', fundacion: '1956' },
+      'mexico-texture': { pais: 'México', comida: 'Mole', fundacion: '1810' },
+      'nuevazelanda-texture': { pais: 'Nueva Zelanda', comida: 'Hāngi', fundacion: '1907' },
+      'paraguay-texture': { pais: 'Paraguay', comida: 'Sopa Paraguaya', fundacion: '1811' },
+      'tunez-texture': { pais: 'Túnez', comida: 'Cuscús', fundacion: '1956' },
+      'uruguay-texture': { pais: 'Uruguay', comida: 'Chivito', fundacion: '1828' },
+      'uzbekistan-texture': { pais: 'Uzbekistán', comida: 'Plov', fundacion: '1991' }
+    };
+
+    /* === LÓGICA DE TRIVIA (Global) === */
     const triviaQuestions = [ { q: "¿En qué año participó Canadá por primera vez en una Copa del Mundo masculina?", a: "1986", options: ["1986", "1994", "1978"] }, { q: "¿Cuál es la mejor posición histórica de EE.UU. en una Copa del Mundo?", a: "Tercer lugar (en 1930)", options: ["Tercer lugar (en 1930)", "Cuartos de final (en 2002)", "Octavos de final (en 1994)"] }, { q: "¿Cuántas veces México ha sido sede de la Copa del Mundo (contando 2026)?", a: "Tres veces", options: ["Tres veces", "Dos veces", "Una vez"] }, { q: "¿Quién es el máximo goleador histórico de Argentina en Mundiales?", a: "Lionel Messi", options: ["Lionel Messi", "Gabriel Batistuta", "Diego Maradona"] }, { q: "¿Qué país, además de Brasil, ha jugado todas las ediciones del Mundial?", a: "Ninguno (Brasil es el único)", options: ["Ninguno (Brasil es el único)", "Alemania", "Italia", "Argentina"] }, { q: "¿Cuál fue el rival de Ecuador en su partido inaugural en Qatar 2022?", a: "Qatar", options: ["Qatar", "Senegal", "Países Bajos"] }, { q: "¿Qué país fue el primer campeón mundial en 1930?", a: "Uruguay", options: ["Uruguay", "Argentina", "Italia"] }, { q: "¿Qué jugador colombiano ganó el Botín de Oro en el Mundial de 2014?", a: "James Rodríguez", options: ["James Rodríguez", "Radamel Falcao", "Thomas Müller"] }, { q: "¿Cuál ha sido la mejor actuación histórica de Paraguay en un Mundial?", a: "Cuartos de final (2010)", options: ["Cuartos de final (2010)", "Octavos de final", "Fase de grupos"] }, { q: "¿Cómo se le conoce popularmente a la selección de Japón?", a: "Samurai Blue", options: ["Samurai Blue", "Los Dragones Azules", "Guerreros del Sol"] }, { q: "¿En qué Mundial logró Irán su primera victoria en la historia del torneo?", a: "Mundial de 1998", options: ["Mundial de 1998", "Mundial de 1978", "Mundial de 2006"] }, { q: "¿Junto a qué país organizó Corea del Sur el Mundial de 2002?", a: "Japón", options: ["Japón", "China", "Tailandia"] }, { q: "¿Qué hito logró Jordania al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Ser anfitrión"] }, { q: "¿Qué hito logró Uzbekistán al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Llegar a semifinales"] }, { q: "¿A qué confederación futbolística pertenece Australia desde 2006?", a: "Asiática (AFC)", options: ["Asiática (AFC)", "Oceanía (OFC)", "UEFA (Europa)"] }, { q: "¿Cuál es el apodo de la selección de Nueva Zelanda?", a: "All Whites", options: ["All Whites", "All Blacks", "Los Kiwis"] }, { q: "¿Qué selección africana fue la primera en llegar a semifinales (en 2022)?", a: "Marruecos", options: ["Marruecos", "Senegal", "Camerún", "Ghana"] }, { q: "¿En qué Mundial, Túnez se convirtió en el primer equipo africano en ganar un partido?", a: "Mundial de 1978", options: ["Mundial de 1978", "Mundial de 1982", "Mundial de 1990"] } ];
     function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
     let currentQuestions = [];
     function showTrivia() { $('trivia-content').innerHTML = ''; $('trivia-results').innerHTML = ''; $('trivia-submit').style.display = 'block'; currentQuestions = shuffleArray([...triviaQuestions]).slice(0, 5); currentQuestions.forEach((item, index) => { const questionId = `q${index}`; const shuffledOptions = shuffleArray([...item.options]); const optionsHtml = shuffledOptions.map(option => ` <label> <input type="radio" name="${questionId}" value="${option}"> ${option} </label> `).join(''); const questionHtml = ` <div class="trivia-question" data-correct-answer="${item.a}"> <h3>${index + 1}. ${item.q}</h3> <div class="trivia-options"> ${optionsHtml} </div> </div> `; $('trivia-content').innerHTML += questionHtml; }); $('trivia-modal').style.display = 'flex'; }
     function hideTrivia() { $('trivia-modal').style.display = 'none'; }
     function checkTriviaAnswers() { $('trivia-submit').style.display = 'none'; $('trivia-results').innerHTML = ''; const questionElements = document.querySelectorAll('.trivia-question'); let correctCount = 0; questionElements.forEach((qEl, index) => { const selectedInput = qEl.querySelector('input[type="radio"]:checked'); const correctAnswer = qEl.getAttribute('data-correct-answer'); const questionText = currentQuestions[index].q; let resultHtml = ''; if (selectedInput && selectedInput.value === correctAnswer) { correctCount++; resultHtml = ` <div class="trivia-result-item correct"> <b>Pregunta ${index + 1}: ¡Correcto!</b><br> ${questionText} </div> `; } else { resultHtml = ` <div class="trivia-result-item incorrect"> <b>Pregunta ${index + 1}: Incorrecto.</b><br> <i>Respuesta correcta: ${correctAnswer}</i> </div> `; } $('trivia-results').innerHTML += resultHtml; }); $('trivia-results').innerHTML = `<h3>Acertaste ${correctCount} de 5</h3>` + $('trivia-results').innerHTML; }
-    /* === FIN DE LÓGICA DE TRIVIA === */
-
-    /* === INICIO DE LÓGICA DE ESTADÍSTICAS === */
+    
+    /* === LÓGICA DE ESTADÍSTICAS (Global) === */
     function showStats() {
       if (!currentVisibleTarget) return; 
       const targetIndex = parseInt(currentVisibleTarget.split('-')[1]);
-      
-      // ----- ¡CAMBIO 1: MOVER ESTAS LÍNEAS AFUERA! -----
-      // const textureId = getTextureIdForIndex(targetIndex); 
-      // const targetMap = [ ... ];
-      // const getTextureIdForIndex = (index) => { ... };
-      // ----- FIN DEL CAMBIO -----
-
-      const textureId = getTextureIdForIndex(targetIndex); // Ahora 'getTextureIdForIndex' es global
+      const textureId = getTextureIdForIndex(targetIndex); 
       if (!textureId) return;
-      
       const data = statsData[textureId];
       if (!data) {
          debug('status', 'Error: No hay datos de stats para ' + textureId);
@@ -727,16 +587,39 @@
       $('stats-content').innerHTML = statsHtml;
       $('stats-modal').style.display = 'flex';
     }
-
     function hideStats() {
       $('stats-modal').style.display = 'none';
     }
-    /* === FIN DE LÓGICA DE ESTADÍSTICAS === */
+
+    /* === LÓGICA DE INFO (Global - NUEVO) === */
+    function showInfo() {
+      if (!currentVisibleTarget) return; 
+      const targetIndex = parseInt(currentVisibleTarget.split('-')[1]);
+      const textureId = getTextureIdForIndex(targetIndex); 
+      if (!textureId) return;
+      
+      const data = infoData[textureId]; // Use infoData
+      if (!data) {
+         debug('status', 'Error: No hay datos de info para ' + textureId);
+         return;
+      }
+      const infoHtml = `
+        <h3>${data.pais}</h3>
+        <ul>
+          <li><strong>Comida Típica:</strong> ${data.comida}</li>
+          <li><strong>Fundación (Estado Moderno):</strong> ${data.fundacion}</li>
+        </ul>
+      `;
+      $('info-content').innerHTML = infoHtml; 
+      $('info-modal').style.display = 'flex'; 
+    }
+    function hideInfo() {
+      $('info-modal').style.display = 'none';
+    }
+    /* === FIN DE LÓGICA DE INFO === */
 
 
-    // ----- ¡CAMBIO 2: MOVER ESTAS FUNCIONES AQUÍ ARRIBA! -----
-    // Estas variables y funciones AHORA son globales,
-    // para que showStats() pueda usarlas.
+    /* === LÓGICA GLOBAL (para que showStats y showInfo funcionen) === */
     const targetMap = [
         { start: 0, end: 3, textureId: 'mexico-texture' },       
         { start: 4, end: 6, textureId: 'canada-texture' },       
@@ -758,7 +641,6 @@
         { start: 60, end: 63, textureId: 'nuevazelanda-texture' } 
     ];
 
-    // Esta función es usada por showStats() y AHORA es global
     const getTextureIdForIndex = (index) => {
       for (const map of targetMap) {
         if (index >= map.start && index <= map.end) return map.textureId;
@@ -766,24 +648,20 @@
       return null;
     };
     
-    // Esta variable debe ser global para que showStats() la lea
     let currentVisibleTarget = null;
-    // ----- FIN DEL CAMBIO 2 -----
+    /* === FIN DE LÓGICA GLOBAL === */
 
 
-    /* === INICIO DE LÓGICA DE AR === */
+    /* === INICIO DE LÓGICA DE AR (Listeners) === */
     document.addEventListener('DOMContentLoaded', () => {
       
       const sceneEl = $('ar-scene');
       const buttonContainer = $('button-container');
-      
       debug('status', 'Inicializado');
-
-      // targetMap y getTextureIdForIndex fueron MOVIDOS ARRIBA
 
       const allTargets = [];
       for (let i = 0; i <= 63; i++) {
-        const textureId = getTextureIdForIndex(i); // Funciona porque ahora es global
+        const textureId = getTextureIdForIndex(i); 
         if (!textureId) continue;
 
         const targetEntity = document.createElement('a-entity');
@@ -804,12 +682,10 @@
       }
 
       let isAnimating = false;
-      // currentVisibleTarget fue MOVIDO ARRIBA
       
       allTargets.forEach((target) => {
-        // Evento cuando se ENCUENTRA un target
         target.entity.addEventListener('targetFound', () => {
-          currentVisibleTarget = target.id; // Asigna la variable global
+          currentVisibleTarget = target.id; 
           debug('status', `Target ${target.index} ENCONTRADO`);
           debug('targets', '1');
           debug('buttons', 'VISIBLES');
@@ -819,10 +695,9 @@
           $('animate-button').textContent = '▶️';
         });
 
-        // Evento cuando se PIERDE un target
         target.entity.addEventListener('targetLost', () => {
           if (currentVisibleTarget === target.id) {
-            currentVisibleTarget = null; // Asigna la variable global
+            currentVisibleTarget = null; 
             debug('status', 'Sin target');
             debug('targets', '0');
             debug('buttons', 'ocultos');
@@ -853,25 +728,22 @@
         }
       });
 
-      // ----- ¡CORRECCIÓN FINAL! -----
-      // Tu botón se llama 'estadisticas', no 'button2'
+      // --- Conexión de todos los botones ---
       $('estadisticas').addEventListener('click', showStats);
-      
-      // Conectar el botón de Trivia
       $('Trivia').addEventListener('click', showTrivia);
+      $('info').addEventListener('click', showInfo); // BOTÓN NUEVO
       
-      // Conectar los botones del modal de trivia
+      // --- Cierres de todos los modales ---
       $('trivia-close').addEventListener('click', hideTrivia);
       $('trivia-submit').addEventListener('click', checkTriviaAnswers);
-    
-      // CONECTAR BOTONES DEL NUEVO MODAL DE STATS
       $('stats-close').addEventListener('click', hideStats);
+      $('info-close').addEventListener('click', hideInfo); // BOTÓN NUEVO
 
     }); // <-- Llave de cierre para 'DOMContentLoaded'
     
     /* === FIN DE LÓGICA DE AR === */
 
-    // JAVASCRIPT PARA EL MENÚ
+    // JAVASCRIPT PARA EL MENÚ (Global)
     function toggleNav() {
       var nav = document.getElementById("mySidenav");
       if (nav.style.width === "250px") {
