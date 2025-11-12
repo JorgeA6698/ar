@@ -111,26 +111,17 @@
       font-family: Arial, sans-serif;
     }
 
-    /* La AR va de fondo */
+    /* ESTO ES LO QUE PIDE LA CÁMARA A PANTALLA COMPLETA */
     #ar-scene {
       width: 100%;
       height: 100vh;
       position: fixed;
       top: 0;
       left: 0;
-      z-index: 1; 
+      z-index: 1; /* La AR va de fondo */
     }
-    
-    /* --- CAMBIO AQUÍ (AÑADIDO) --- */
-    /* Esta es la capa de UI de MindAR (el recuadro de escaneo) */
-    /* La ponemos en una capa intermedia */
-    .mindar-ui-overlay {
-      z-index: 100 !important; /* Encima de la AR (1) */
-      /* Hacemos que no bloquee los botones de abajo */
-      pointer-events: none;
-    }
-    /* --- FIN DEL CAMBIO --- */
 
+    /* --- CSS PARA EL LOGO Y MENÚ (AÑADIDO) --- */
 
     /* Logo MundiAR */
     .logo {
@@ -141,7 +132,7 @@
       font-weight: bold;
       color: white;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-      z-index: 9999; /* Encima de todo */
+      z-index: 999999; /* Encima de todo */
       letter-spacing: 1px;
     }
     
@@ -150,7 +141,7 @@
       position: fixed;
       top: 20px;
       right: 20px;
-      z-index: 9999; /* Encima de todo */
+      z-index: 999999; /* Encima de todo */
       cursor: pointer;
     }
     
@@ -168,7 +159,7 @@
       height: 100%;
       width: 0; /* Oculto por defecto */
       position: fixed;
-      z-index: 9998; /* Un poco detrás del icono */
+      z-index: 999998; /* Un poco detrás del icono */
       top: 0;
       right: 0;
       background-color: rgba(0, 40, 104, 0.95);
@@ -196,6 +187,7 @@
       color: white;
       font-weight: bold;
     }
+    /* --- FIN DE CSS PARA EL LOGO Y MENÚ --- */
 
     
     #home-button {
@@ -210,7 +202,7 @@
       display: flex !important;
       align-items: center;
       justify-content: center;
-      z-index: 9997; /* Debajo del menú */
+      z-index: 999997; /* Justo debajo del menú */
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       transition: transform 0.1s ease;
       text-decoration: none;
@@ -236,7 +228,7 @@
       position: fixed !important;
       bottom: 15px !important;
       right: 15px !important;
-      z-index: 9997; /* Debajo del menú */
+      z-index: 999997; /* Justo debajo del menú */
       display: flex !important;
       flex-direction: column !important;
       gap: 10px;
@@ -286,12 +278,12 @@
       border-radius: 5px;
       font-family: monospace;
       font-size: 11px;
-      z-index: 9997;
+      z-index: 999997;
       max-width: 200px;
       pointer-events: none;
     }
     
-    /* === ESTILOS PARA TRIVIA === */
+    /* === INICIO DE ESTILOS PARA TRIVIA === */
     #trivia-modal {
       position: fixed;
       top: 0;
@@ -299,8 +291,8 @@
       width: 100%;
       height: 100%;
       background-color: rgba(0, 0, 0, 0.6);
-      z-index: 10000; /* Encima de todo */
-      display: none; 
+      z-index: 1000000;
+      display: none; /* Oculto por defecto */
       justify-content: center;
       align-items: center;
       padding: 10px;
@@ -396,8 +388,9 @@
       border-color: #ebccd1;
       color: #a94442;
     }
+    /* === FIN DE ESTILOS PARA TRIVIA === */
 
-    /* === ESTILOS PARA ESTADÍSTICAS === */
+    /* === INICIO DE ESTILOS PARA ESTADÍSTICAS (NUEVO) === */
     #stats-modal {
       position: fixed;
       top: 0;
@@ -405,8 +398,8 @@
       width: 100%;
       height: 100%;
       background-color: rgba(0, 0, 0, 0.6);
-      z-index: 10000; /* Encima de todo */
-      display: none; 
+      z-index: 1000000;
+      display: none; /* Oculto por defecto */
       justify-content: center;
       align-items: center;
       padding: 10px;
@@ -441,7 +434,7 @@
     
     #stats-content h3 {
        margin-top: 0;
-       color: #002868;
+       color: #002868; /* Color del tema */
        border-bottom: 2px solid #eee;
        padding-bottom: 10px;
     }
@@ -462,6 +455,8 @@
     #stats-content li strong {
       color: #333;
     }
+    /* === FIN DE ESTILOS PARA ESTADÍSTICAS === */
+
   </style>
 </head>
 <body>
@@ -477,7 +472,6 @@
   <div id="mySidenav" class="side-nav">
     <a href="index.html">Inicio</a>
     <a href="video.html">Video</a>
-    <a href="estadisticas.html">Estadísticas</a>
     <a href="trivia.html">Trivia</a>
     <a href="PruebaAr.html" class="active">AR</a>
   </div>
@@ -522,12 +516,7 @@
 
   <a-scene
     id="ar-scene"
-    
-    // --- CAMBIO AQUÍ ---
-    // Volvemos a activar la UI de MindAR (el recuadro de escaneo)
-    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: yes"
-    // --- FIN DEL CAMBIO ---
-
+    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false"
     embedded
@@ -567,7 +556,7 @@
       if (el) el.textContent = val;
     };
 
-    /* === BASE DE DATOS DE ESTADÍSTICAS === */
+    /* === BASE DE DATOS DE ESTADÍSTICAS (NUEVO) === */
     const statsData = {
       'argentina-texture': {
         pais: 'Argentina',
@@ -698,6 +687,7 @@
     };
 
     /* === INICIO DE LÓGICA DE TRIVIA === */
+    // (Tu lógica de trivia está aquí... colapsada por claridad)
     const triviaQuestions = [ { q: "¿En qué año participó Canadá por primera vez en una Copa del Mundo masculina?", a: "1986", options: ["1986", "1994", "1978"] }, { q: "¿Cuál es la mejor posición histórica de EE.UU. en una Copa del Mundo?", a: "Tercer lugar (en 1930)", options: ["Tercer lugar (en 1930)", "Cuartos de final (en 2002)", "Octavos de final (en 1994)"] }, { q: "¿Cuántas veces México ha sido sede de la Copa del Mundo (contando 2026)?", a: "Tres veces", options: ["Tres veces", "Dos veces", "Una vez"] }, { q: "¿Quién es el máximo goleador histórico de Argentina en Mundiales?", a: "Lionel Messi", options: ["Lionel Messi", "Gabriel Batistuta", "Diego Maradona"] }, { q: "¿Qué país, además de Brasil, ha jugado todas las ediciones del Mundial?", a: "Ninguno (Brasil es el único)", options: ["Ninguno (Brasil es el único)", "Alemania", "Italia", "Argentina"] }, { q: "¿Cuál fue el rival de Ecuador en su partido inaugural en Qatar 2022?", a: "Qatar", options: ["Qatar", "Senegal", "Países Bajos"] }, { q: "¿Qué país fue el primer campeón mundial en 1930?", a: "Uruguay", options: ["Uruguay", "Argentina", "Italia"] }, { q: "¿Qué jugador colombiano ganó el Botín de Oro en el Mundial de 2014?", a: "James Rodríguez", options: ["James Rodríguez", "Radamel Falcao", "Thomas Müller"] }, { q: "¿Cuál ha sido la mejor actuación histórica de Paraguay en un Mundial?", a: "Cuartos de final (2010)", options: ["Cuartos de final (2010)", "Octavos de final", "Fase de grupos"] }, { q: "¿Cómo se le conoce popularmente a la selección de Japón?", a: "Samurai Blue", options: ["Samurai Blue", "Los Dragones Azules", "Guerreros del Sol"] }, { q: "¿En qué Mundial logró Irán su primera victoria en la historia del torneo?", a: "Mundial de 1998", options: ["Mundial de 1998", "Mundial de 1978", "Mundial de 2006"] }, { q: "¿Junto a qué país organizó Corea del Sur el Mundial de 2002?", a: "Japón", options: ["Japón", "China", "Tailandia"] }, { q: "¿Qué hito logró Jordania al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Ser anfitrión"] }, { q: "¿Qué hito logró Uzbekistán al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Llegar a semifinales"] }, { q: "¿A qué confederación futbolística pertenece Australia desde 2006?", a: "Asiática (AFC)", options: ["Asiática (AFC)", "Oceanía (OFC)", "UEFA (Europa)"] }, { q: "¿Cuál es el apodo de la selección de Nueva Zelanda?", a: "All Whites", options: ["All Whites", "All Blacks", "Los Kiwis"] }, { q: "¿Qué selección africana fue la primera en llegar a semifinales (en 2022)?", a: "Marruecos", options: ["Marruecos", "Senegal", "Camerún", "Ghana"] }, { q: "¿En qué Mundial, Túnez se convirtió en el primer equipo africano en ganar un partido?", a: "Mundial de 1978", options: ["Mundial de 1978", "Mundial de 1982", "Mundial de 1990"] } ];
     function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
     let currentQuestions = [];
@@ -845,7 +835,8 @@
         }
       });
 
-      // Conectar el botón de Estadísticas
+      // ----- ¡AQUÍ ESTÁ LA CORRECCIÓN! -----
+      // Tu botón se llama 'estadisticas', no 'button2'
       $('estadisticas').addEventListener('click', showStats);
       
       // Conectar el botón de Trivia
