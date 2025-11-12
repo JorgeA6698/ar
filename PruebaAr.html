@@ -389,6 +389,74 @@
       color: #a94442;
     }
     /* === FIN DE ESTILOS PARA TRIVIA === */
+
+    /* === INICIO DE ESTILOS PARA ESTADÍSTICAS (NUEVO) === */
+    #stats-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 1000000;
+      display: none; /* Oculto por defecto */
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    
+    .stats-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    
+    .stats-close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #888;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .stats-close-btn:hover {
+      color: #000;
+    }
+    
+    #stats-content h3 {
+       margin-top: 0;
+       color: #002868; /* Color del tema */
+       border-bottom: 2px solid #eee;
+       padding-bottom: 10px;
+    }
+    
+    #stats-content ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    
+    #stats-content li {
+      background-color: #f4f4f4;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    
+    #stats-content li strong {
+      color: #333;
+    }
+    /* === FIN DE ESTILOS PARA ESTADÍSTICAS === */
+
   </style>
 </head>
 <body>
@@ -438,6 +506,15 @@
     </div>
   </div>
 
+  <div id="stats-modal">
+    <div class="stats-container">
+      <span class="stats-close-btn" id="stats-close">&times;</span>
+      <h2>Estadísticas del País</h2>
+      <div id="stats-content">
+        </div>
+    </div>
+  </div>
+
   <a-scene
     id="ar-scene"
     mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
@@ -480,6 +557,136 @@
       if (el) el.textContent = val;
     };
 
+    /* === BASE DE DATOS DE ESTADÍSTICAS (NUEVO) === */
+    const statsData = {
+      'argentina-texture': {
+        pais: 'Argentina',
+        mundiales: '18',
+        primeraVez: '1930',
+        goles: '137',
+        jugadores: 'Lionel Messi, Diego Maradona, Gabriel Batistuta'
+      },
+      'australia-texture': {
+        pais: 'Australia',
+        mundiales: '6',
+        primeraVez: '1974',
+        goles: '17',
+        jugadores: 'Tim Cahill, Mark Viduka, Harry Kewell'
+      },
+      'brasil-texture': {
+        pais: 'Brasil',
+        mundiales: '22',
+        primeraVez: '1930',
+        goles: '237',
+        jugadores: 'Pelé, Ronaldo Nazário, Garrincha, Neymar'
+      },
+      'canada-texture': {
+        pais: 'Canadá',
+        mundiales: '2',
+        primeraVez: '1986',
+        goles: '2',
+        jugadores: 'Alphonso Davies, Jonathan David, Cyle Larin, Atiba Hutchinson'
+      },
+      'colombia-texture': {
+        pais: 'Colombia',
+        mundiales: '6',
+        primeraVez: '1962',
+        goles: '20',
+        jugadores: 'James Rodríguez, Carlos Valderrama, Radamel Falcao'
+      },
+      'coreadelsur-texture': {
+        pais: 'Corea del Sur',
+        mundiales: '11',
+        primeraVez: '1954',
+        goles: '36',
+        jugadores: 'Son Heung-min, Park Ji-Sung, Cha Bum-Kun'
+      },
+      'ecuador-texture': {
+        pais: 'Ecuador',
+        mundiales: '4',
+        primeraVez: '2002',
+        goles: '12',
+        jugadores: 'Enner Valencia, Antonio Valencia, Alberto Spencer'
+      },
+      'usa-texture': {
+        pais: 'Estados Unidos',
+        mundiales: '11',
+        primeraVez: '1930',
+        goles: '45',
+        jugadores: 'Landon Donovan, Clint Dempsey, Christian Pulisic'
+      },
+      'iran-texture': {
+        pais: 'Irán',
+        mundiales: '6',
+        primeraVez: '1978',
+        goles: '9',
+        jugadores: 'Ali Daei, Mehdi Taremi, Sardar Azmoun'
+      },
+      'japon-texture': {
+        pais: 'Japón',
+        mundiales: '7',
+        primeraVez: '1998',
+        goles: '23',
+        jugadores: 'Hidetoshi Nakata, Shunsuke Nakamura, Keisuke Honda, Kunishige Kamamoto'
+      },
+      'jordania-texture': {
+        pais: 'Jordania',
+        mundiales: '0',
+        primeraVez: '2026',
+        goles: '0',
+        jugadores: 'Musa Al-Taamari, Hamza Al-Daradour'
+      },
+      'marruecos-texture': {
+        pais: 'Marruecos',
+        mundiales: '6',
+        primeraVez: '1970',
+        goles: '17',
+        jugadores: 'Achraf Hakimi, Hakim Ziyech, Yassine Bounou, Mustapha Hadji'
+      },
+      'mexico-texture': {
+        pais: 'México',
+        mundiales: '17',
+        primeraVez: '1930',
+        goles: '60',
+        jugadores: 'Hugo Sánchez, Cuauhtémoc Blanco, Antonio Carbajal, Javier Hernández'
+      },
+      'nuevazelanda-texture': {
+        pais: 'Nueva Zelanda',
+        mundiales: '2',
+        primeraVez: '1982',
+        goles: '4',
+        jugadores: 'Wynton Rufer, Ryan Nelsen, Chris Wood'
+      },
+      'paraguay-texture': {
+        pais: 'Paraguay',
+        mundiales: '8',
+        primeraVez: '1930',
+        goles: '27',
+        jugadores: 'José Luis Chilavert, Roque Santa Cruz, José Saturnino Cardozo'
+      },
+      'tunez-texture': {
+        pais: 'Túnez',
+        mundiales: '6',
+        primeraVez: '1978',
+        goles: '13',
+        jugadores: 'Wahbi Khazri, Tarak Dhiab, Radhi Jaïdi'
+      },
+      'uruguay-texture': {
+        pais: 'Uruguay',
+        mundiales: '14',
+        primeraVez: '1930',
+        goles: '88',
+        jugadores: 'Luis Suárez, Edinson Cavani, Diego Forlán, Juan Alberto Schiaffino'
+      },
+      'uzbekistan-texture': {
+        pais: 'Uzbekistán',
+        mundiales: '0',
+        primeraVez: '2026',
+        goles: '0',
+        jugadores: 'Eldor Shomurodov, Server Djeparov'
+      }
+    };
+
     /* === INICIO DE LÓGICA DE TRIVIA === */
     // (Tu lógica de trivia está aquí... colapsada por claridad)
     const triviaQuestions = [ { q: "¿En qué año participó Canadá por primera vez en una Copa del Mundo masculina?", a: "1986", options: ["1986", "1994", "1978"] }, { q: "¿Cuál es la mejor posición histórica de EE.UU. en una Copa del Mundo?", a: "Tercer lugar (en 1930)", options: ["Tercer lugar (en 1930)", "Cuartos de final (en 2002)", "Octavos de final (en 1994)"] }, { q: "¿Cuántas veces México ha sido sede de la Copa del Mundo (contando 2026)?", a: "Tres veces", options: ["Tres veces", "Dos veces", "Una vez"] }, { q: "¿Quién es el máximo goleador histórico de Argentina en Mundiales?", a: "Lionel Messi", options: ["Lionel Messi", "Gabriel Batistuta", "Diego Maradona"] }, { q: "¿Qué país, además de Brasil, ha jugado todas las ediciones del Mundial?", a: "Ninguno (Brasil es el único)", options: ["Ninguno (Brasil es el único)", "Alemania", "Italia", "Argentina"] }, { q: "¿Cuál fue el rival de Ecuador en su partido inaugural en Qatar 2022?", a: "Qatar", options: ["Qatar", "Senegal", "Países Bajos"] }, { q: "¿Qué país fue el primer campeón mundial en 1930?", a: "Uruguay", options: ["Uruguay", "Argentina", "Italia"] }, { q: "¿Qué jugador colombiano ganó el Botín de Oro en el Mundial de 2014?", a: "James Rodríguez", options: ["James Rodríguez", "Radamel Falcao", "Thomas Müller"] }, { q: "¿Cuál ha sido la mejor actuación histórica de Paraguay en un Mundial?", a: "Cuartos de final (2010)", options: ["Cuartos de final (2010)", "Octavos de final", "Fase de grupos"] }, { q: "¿Cómo se le conoce popularmente a la selección de Japón?", a: "Samurai Blue", options: ["Samurai Blue", "Los Dragones Azules", "Guerreros del Sol"] }, { q: "¿En qué Mundial logró Irán su primera victoria en la historia del torneo?", a: "Mundial de 1998", options: ["Mundial de 1998", "Mundial de 1978", "Mundial de 2006"] }, { q: "¿Junto a qué país organizó Corea del Sur el Mundial de 2002?", a: "Japón", options: ["Japón", "China", "Tailandia"] }, { q: "¿Qué hito logró Jordania al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Ser anfitrión"] }, { q: "¿Qué hito logró Uzbekistán al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Llegar a semifinales"] }, { q: "¿A qué confederación futbolística pertenece Australia desde 2006?", a: "Asiática (AFC)", options: ["Asiática (AFC)", "Oceanía (OFC)", "UEFA (Europa)"] }, { q: "¿Cuál es el apodo de la selección de Nueva Zelanda?", a: "All Whites", options: ["All Whites", "All Blacks", "Los Kiwis"] }, { q: "¿Qué selección africana fue la primera en llegar a semifinales (en 2022)?", a: "Marruecos", options: ["Marruecos", "Senegal", "Camerún", "Ghana"] }, { q: "¿En qué Mundial, Túnez se convirtió en el primer equipo africano en ganar un partido?", a: "Mundial de 1978", options: ["Mundial de 1978", "Mundial de 1982", "Mundial de 1990"] } ];
@@ -488,8 +695,47 @@
     function showTrivia() { $('trivia-content').innerHTML = ''; $('trivia-results').innerHTML = ''; $('trivia-submit').style.display = 'block'; currentQuestions = shuffleArray([...triviaQuestions]).slice(0, 5); currentQuestions.forEach((item, index) => { const questionId = `q${index}`; const shuffledOptions = shuffleArray([...item.options]); const optionsHtml = shuffledOptions.map(option => ` <label> <input type="radio" name="${questionId}" value="${option}"> ${option} </label> `).join(''); const questionHtml = ` <div class="trivia-question" data-correct-answer="${item.a}"> <h3>${index + 1}. ${item.q}</h3> <div class="trivia-options"> ${optionsHtml} </div> </div> `; $('trivia-content').innerHTML += questionHtml; }); $('trivia-modal').style.display = 'flex'; }
     function hideTrivia() { $('trivia-modal').style.display = 'none'; }
     function checkTriviaAnswers() { $('trivia-submit').style.display = 'none'; $('trivia-results').innerHTML = ''; const questionElements = document.querySelectorAll('.trivia-question'); let correctCount = 0; questionElements.forEach((qEl, index) => { const selectedInput = qEl.querySelector('input[type="radio"]:checked'); const correctAnswer = qEl.getAttribute('data-correct-answer'); const questionText = currentQuestions[index].q; let resultHtml = ''; if (selectedInput && selectedInput.value === correctAnswer) { correctCount++; resultHtml = ` <div class="trivia-result-item correct"> <b>Pregunta ${index + 1}: ¡Correcto!</b><br> ${questionText} </div> `; } else { resultHtml = ` <div class="trivia-result-item incorrect"> <b>Pregunta ${index + 1}: Incorrecto.</b><br> <i>Respuesta correcta: ${correctAnswer}</i> </div> `; } $('trivia-results').innerHTML += resultHtml; }); $('trivia-results').innerHTML = `<h3>Acertaste ${correctCount} de 5</h3>` + $('trivia-results').innerHTML; }
-    
     /* === FIN DE LÓGICA DE TRIVIA === */
+
+    /* === INICIO DE LÓGICA DE ESTADÍSTICAS (NUEVO) === */
+    function showStats() {
+      if (!currentVisibleTarget) return; // No hay target, no hacer nada
+
+      // 1. Obtener el índice del target (ej: "target-10" -> 10)
+      const targetIndex = parseInt(currentVisibleTarget.split('-')[1]);
+      
+      // 2. Usar el índice para obtener el textureId (ej: "argentina-texture")
+      // (getTextureIdForIndex ya existe más abajo)
+      const textureId = getTextureIdForIndex(targetIndex);
+      if (!textureId) return;
+
+      // 3. Buscar los datos en nuestra base de datos
+      const data = statsData[textureId];
+      if (!data) {
+         debug('status', 'Error: No hay datos de stats para ' + textureId);
+         return;
+      }
+
+      // 4. Construir el HTML
+      const statsHtml = `
+        <h3>${data.pais}</h3>
+        <ul>
+          <li><strong>Mundiales:</strong> ${data.mundiales}</li>
+          <li><strong>Primera vez:</strong> ${data.primeraVez}</li>
+          <li><strong>Goles totales:</strong> ${data.goles}</li>
+          <li><strong>Mejores jugadores:</strong> ${data.jugadores}</li>
+        </ul>
+      `;
+      
+      // 5. Inyectar el HTML y mostrar el modal
+      $('stats-content').innerHTML = statsHtml;
+      $('stats-modal').style.display = 'flex';
+    }
+
+    function hideStats() {
+      $('stats-modal').style.display = 'none';
+    }
+    /* === FIN DE LÓGICA DE ESTADÍSTICAS === */
 
 
     /* === INICIO DE LÓGICA DE AR === */
@@ -521,6 +767,7 @@
         { start: 60, end: 63, textureId: 'nuevazelanda-texture' } 
       ];
 
+      // Esta función es usada por showStats()
       const getTextureIdForIndex = (index) => {
         for (const map of targetMap) {
           if (index >= map.start && index <= map.end) return map.textureId;
@@ -600,7 +847,8 @@
         }
       });
 
-      $('button2').addEventListener('click', () => alert('Información'));
+      // MODIFICADO: Llamar a showStats en lugar de alert
+      $('button2').addEventListener('click', showStats);
       
       // Conectar el botón de Trivia a la nueva función
       $('Trivia').addEventListener('click', showTrivia);
@@ -609,6 +857,9 @@
       $('trivia-close').addEventListener('click', hideTrivia);
       $('trivia-submit').addEventListener('click', checkTriviaAnswers);
     
+      // CONECTAR BOTONES DEL NUEVO MODAL DE STATS (NUEVO)
+      $('stats-close').addEventListener('click', hideStats);
+
     }); // <-- Llave de cierre para 'DOMContentLoaded'
     
     /* === FIN DE LÓGICA DE AR === */
