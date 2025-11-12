@@ -111,14 +111,84 @@
       font-family: Arial, sans-serif;
     }
 
+    /* ESTO ES LO QUE PIDE LA CÁMARA A PANTALLA COMPLETA */
     #ar-scene {
       width: 100%;
       height: 100vh;
       position: fixed;
       top: 0;
       left: 0;
-      z-index: 1;
+      z-index: 1; /* La AR va de fondo */
     }
+
+    /* --- CSS PARA EL LOGO Y MENÚ (AÑADIDO) --- */
+
+    /* Logo MundiAR */
+    .logo {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 6vw;
+      font-weight: bold;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      z-index: 999999; /* Encima de todo */
+      letter-spacing: 1px;
+    }
+    
+    /* Menú hamburguesa */
+    .menu-icon {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 999999; /* Encima de todo */
+      cursor: pointer;
+    }
+    
+    .menu-icon .bar {
+      width: 35px;
+      height: 4px;
+      background-color: white;
+      margin: 6px 0;
+      transition: 0.4s;
+      border-radius: 2px;
+    }
+    
+    /* Panel del menú lateral */
+    .side-nav {
+      height: 100%;
+      width: 0; /* Oculto por defecto */
+      position: fixed;
+      z-index: 999998; /* Un poco detrás del icono */
+      top: 0;
+      right: 0;
+      background-color: rgba(0, 40, 104, 0.95);
+      overflow-x: hidden;
+      transition: 0.5s;
+      padding-top: 60px;
+      text-align: center;
+    }
+    
+    .side-nav a {
+      padding: 15px 25px;
+      text-decoration: none;
+      font-size: 6vw;
+      color: #ccc;
+      display: block;
+      transition: 0.3s;
+    }
+    
+    .side-nav a:hover,
+    .side-nav a:active {
+      color: #FFD700;
+    }
+    
+    .side-nav a.active {
+      color: white;
+      font-weight: bold;
+    }
+    /* --- FIN DE CSS PARA EL LOGO Y MENÚ --- */
+
     
     #home-button {
       position: fixed !important;
@@ -132,7 +202,7 @@
       display: flex !important;
       align-items: center;
       justify-content: center;
-      z-index: 999999 !important;
+      z-index: 999997; /* Justo debajo del menú */
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       transition: transform 0.1s ease;
       text-decoration: none;
@@ -158,7 +228,7 @@
       position: fixed !important;
       bottom: 15px !important;
       right: 15px !important;
-      z-index: 999998 !important;
+      z-index: 999997; /* Justo debajo del menú */
       display: flex !important;
       flex-direction: column !important;
       gap: 10px;
@@ -323,6 +393,21 @@
 </head>
 <body>
 
+  <div class="logo">MundiAR</div>
+
+  <div class="menu-icon" onclick="toggleNav()">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
+
+  <div id="mySidenav" class="side-nav">
+    <a href="index.html">Inicio</a>
+    <a href="video.html">Video</a>
+    <a href="estadisticas.html">Estadísticas</a>
+    <a href="trivia.html">Trivia</a>
+    <a href="PruebaAr.html" class="active">AR</a>
+  </div>
   <div id="debug-info">
     <div>Status: <span id="d-status">Cargando...</span></div>
     <div>Targets: <span id="d-targets">0</span></div>
@@ -396,189 +481,20 @@
     };
 
     /* === INICIO DE LÓGICA DE TRIVIA === */
+    // (Tu lógica de trivia está aquí... colapsada por claridad)
+    const triviaQuestions = [ { q: "¿En qué año participó Canadá por primera vez en una Copa del Mundo masculina?", a: "1986", options: ["1986", "1994", "1978"] }, { q: "¿Cuál es la mejor posición histórica de EE.UU. en una Copa del Mundo?", a: "Tercer lugar (en 1930)", options: ["Tercer lugar (en 1930)", "Cuartos de final (en 2002)", "Octavos de final (en 1994)"] }, { q: "¿Cuántas veces México ha sido sede de la Copa del Mundo (contando 2026)?", a: "Tres veces", options: ["Tres veces", "Dos veces", "Una vez"] }, { q: "¿Quién es el máximo goleador histórico de Argentina en Mundiales?", a: "Lionel Messi", options: ["Lionel Messi", "Gabriel Batistuta", "Diego Maradona"] }, { q: "¿Qué país, además de Brasil, ha jugado todas las ediciones del Mundial?", a: "Ninguno (Brasil es el único)", options: ["Ninguno (Brasil es el único)", "Alemania", "Italia", "Argentina"] }, { q: "¿Cuál fue el rival de Ecuador en su partido inaugural en Qatar 2022?", a: "Qatar", options: ["Qatar", "Senegal", "Países Bajos"] }, { q: "¿Qué país fue el primer campeón mundial en 1930?", a: "Uruguay", options: ["Uruguay", "Argentina", "Italia"] }, { q: "¿Qué jugador colombiano ganó el Botín de Oro en el Mundial de 2014?", a: "James Rodríguez", options: ["James Rodríguez", "Radamel Falcao", "Thomas Müller"] }, { q: "¿Cuál ha sido la mejor actuación histórica de Paraguay en un Mundial?", a: "Cuartos de final (2010)", options: ["Cuartos de final (2010)", "Octavos de final", "Fase de grupos"] }, { q: "¿Cómo se le conoce popularmente a la selección de Japón?", a: "Samurai Blue", options: ["Samurai Blue", "Los Dragones Azules", "Guerreros del Sol"] }, { q: "¿En qué Mundial logró Irán su primera victoria en la historia del torneo?", a: "Mundial de 1998", options: ["Mundial de 1998", "Mundial de 1978", "Mundial de 2006"] }, { q: "¿Junto a qué país organizó Corea del Sur el Mundial de 2002?", a: "Japón", options: ["Japón", "China", "Tailandia"] }, { q: "¿Qué hito logró Jordania al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Ser anfitrión"] }, { q: "¿Qué hito logró Uzbekistán al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Llegar a semifinales"] }, { q: "¿A qué confederación futbolística pertenece Australia desde 2006?", a: "Asiática (AFC)", options: ["Asiática (AFC)", "Oceanía (OFC)", "UEFA (Europa)"] }, { q: "¿Cuál es el apodo de la selección de Nueva Zelanda?", a: "All Whites", options: ["All Whites", "All Blacks", "Los Kiwis"] }, { q: "¿Qué selección africana fue la primera en llegar a semifinales (en 2022)?", a: "Marruecos", options: ["Marruecos", "Senegal", "Camerún", "Ghana"] }, { q: "¿En qué Mundial, Túnez se convirtió en el primer equipo africano en ganar un partido?", a: "Mundial de 1978", options: ["Mundial de 1978", "Mundial de 1982", "Mundial de 1990"] } ];
+    function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
+    let currentQuestions = [];
+    function showTrivia() { $('trivia-content').innerHTML = ''; $('trivia-results').innerHTML = ''; $('trivia-submit').style.display = 'block'; currentQuestions = shuffleArray([...triviaQuestions]).slice(0, 5); currentQuestions.forEach((item, index) => { const questionId = `q${index}`; const shuffledOptions = shuffleArray([...item.options]); const optionsHtml = shuffledOptions.map(option => ` <label> <input type="radio" name="${questionId}" value="${option}"> ${option} </label> `).join(''); const questionHtml = ` <div class="trivia-question" data-correct-answer="${item.a}"> <h3>${index + 1}. ${item.q}</h3> <div class="trivia-options"> ${optionsHtml} </div> </div> `; $('trivia-content').innerHTML += questionHtml; }); $('trivia-modal').style.display = 'flex'; }
+    function hideTrivia() { $('trivia-modal').style.display = 'none'; }
+    function checkTriviaAnswers() { $('trivia-submit').style.display = 'none'; $('trivia-results').innerHTML = ''; const questionElements = document.querySelectorAll('.trivia-question'); let correctCount = 0; questionElements.forEach((qEl, index) => { const selectedInput = qEl.querySelector('input[type="radio"]:checked'); const correctAnswer = qEl.getAttribute('data-correct-answer'); const questionText = currentQuestions[index].q; let resultHtml = ''; if (selectedInput && selectedInput.value === correctAnswer) { correctCount++; resultHtml = ` <div class="trivia-result-item correct"> <b>Pregunta ${index + 1}: ¡Correcto!</b><br> ${questionText} </div> `; } else { resultHtml = ` <div class="trivia-result-item incorrect"> <b>Pregunta ${index + 1}: Incorrecto.</b><br> <i>Respuesta correcta: ${correctAnswer}</i> </div> `; } $('trivia-results').innerHTML += resultHtml; }); $('trivia-results').innerHTML = `<h3>Acertaste ${correctCount} de 5</h3>` + $('trivia-results').innerHTML; }
     
-    // 1. Base de datos de preguntas
-    const triviaQuestions = [
-      { 
-        q: "¿En qué año participó Canadá por primera vez en una Copa del Mundo masculina?", 
-        a: "1986",
-        options: ["1986", "1994", "1978"]
-      },
-      { 
-        q: "¿Cuál es la mejor posición histórica de EE.UU. en una Copa del Mundo?", 
-        a: "Tercer lugar (en 1930)",
-        options: ["Tercer lugar (en 1930)", "Cuartos de final (en 2002)", "Octavos de final (en 1994)"]
-      },
-      { 
-        q: "¿Cuántas veces México ha sido sede de la Copa del Mundo (contando 2026)?", 
-        a: "Tres veces",
-        options: ["Tres veces", "Dos veces", "Una vez"]
-      },
-      { 
-        q: "¿Quién es el máximo goleador histórico de Argentina en Mundiales?", 
-        a: "Lionel Messi",
-        options: ["Lionel Messi", "Gabriel Batistuta", "Diego Maradona"]
-      },
-      { 
-        q: "¿Qué país, además de Brasil, ha jugado todas las ediciones del Mundial?", 
-        a: "Ninguno (Brasil es el único)",
-        options: ["Ninguno (Brasil es el único)", "Alemania", "Italia", "Argentina"]
-      },
-      { 
-        q: "¿Cuál fue el rival de Ecuador en su partido inaugural en Qatar 2022?", 
-        a: "Qatar",
-        options: ["Qatar", "Senegal", "Países Bajos"]
-      },
-      { 
-        q: "¿Qué país fue el primer campeón mundial en 1930?", 
-        a: "Uruguay",
-        options: ["Uruguay", "Argentina", "Italia"]
-      },
-      { 
-        q: "¿Qué jugador colombiano ganó el Botín de Oro en el Mundial de 2014?", 
-        a: "James Rodríguez",
-        options: ["James Rodríguez", "Radamel Falcao", "Thomas Müller"]
-      },
-      { 
-        q: "¿Cuál ha sido la mejor actuación histórica de Paraguay en un Mundial?", 
-        a: "Cuartos de final (2010)",
-        options: ["Cuartos de final (2010)", "Octavos de final", "Fase de grupos"]
-      },
-      { 
-        q: "¿Cómo se le conoce popularmente a la selección de Japón?", 
-        a: "Samurai Blue",
-        options: ["Samurai Blue", "Los Dragones Azules", "Guerreros del Sol"]
-      },
-      { 
-        q: "¿En qué Mundial logró Irán su primera victoria en la historia del torneo?", 
-        a: "Mundial de 1998",
-        options: ["Mundial de 1998", "Mundial de 1978", "Mundial de 2006"]
-      },
-      { 
-        q: "¿Junto a qué país organizó Corea del Sur el Mundial de 2002?", 
-        a: "Japón",
-        options: ["Japón", "China", "Tailandia"]
-      },
-      { 
-        q: "¿Qué hito logró Jordania al clasificar para 2026?", 
-        a: "Clasificar por primera vez a un Mundial",
-        options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Ser anfitrión"]
-      },
-      { 
-        q: "¿Qué hito logró Uzbekistán al clasificar para 2026?", 
-        a: "Clasificar por primera vez a un Mundial",
-        options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Llegar a semifinales"]
-      },
-      { 
-        q: "¿A qué confederación futbolística pertenece Australia desde 2006?", 
-        a: "Asiática (AFC)",
-        options: ["Asiática (AFC)", "Oceanía (OFC)", "UEFA (Europa)"]
-      },
-      { 
-        q: "¿Cuál es el apodo de la selección de Nueva Zelanda?", 
-        a: "All Whites",
-        options: ["All Whites", "All Blacks", "Los Kiwis"]
-      },
-      { 
-        q: "¿Qué selección africana fue la primera en llegar a semifinales (en 2022)?", 
-        a: "Marruecos",
-        options: ["Marruecos", "Senegal", "Camerún", "Ghana"]
-      },
-      { 
-        q: "¿En qué Mundial, Túnez se convirtió en el primer equipo africano en ganar un partido?", 
-        a: "Mundial de 1978",
-        options: ["Mundial de 1978", "Mundial de 1982", "Mundial de 1990"]
-      }
-    ];
-
-    // 2. Función para mezclar un array
-    function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
-
-    let currentQuestions = []; // Guardará las 5 preguntas actuales
-
-    // 3. Función para mostrar la trivia
-    function showTrivia() {
-      $('trivia-content').innerHTML = '';
-      $('trivia-results').innerHTML = '';
-      $('trivia-submit').style.display = 'block'; 
-      
-      currentQuestions = shuffleArray([...triviaQuestions]).slice(0, 5);
-      
-      currentQuestions.forEach((item, index) => {
-        const questionId = `q${index}`;
-        const shuffledOptions = shuffleArray([...item.options]);
-        
-        const optionsHtml = shuffledOptions.map(option => `
-          <label>
-            <input type="radio" name="${questionId}" value="${option}">
-            ${option}
-          </label>
-        `).join('');
-        
-        const questionHtml = `
-          <div class="trivia-question" data-correct-answer="${item.a}">
-            <h3>${index + 1}. ${item.q}</h3>
-            <div class="trivia-options">
-              ${optionsHtml}
-            </div>
-          </div>
-        `;
-        $('trivia-content').innerHTML += questionHtml;
-      });
-      
-      $('trivia-modal').style.display = 'flex';
-    }
-
-    // 4. Función para cerrar la trivia
-    function hideTrivia() {
-      $('trivia-modal').style.display = 'none';
-    }
-
-    // 5. Función para revisar las respuestas
-    function checkTriviaAnswers() {
-      $('trivia-submit').style.display = 'none'; 
-      $('trivia-results').innerHTML = ''; 
-      
-      const questionElements = document.querySelectorAll('.trivia-question');
-      let correctCount = 0;
-      
-      questionElements.forEach((qEl, index) => {
-        const selectedInput = qEl.querySelector('input[type="radio"]:checked');
-        const correctAnswer = qEl.getAttribute('data-correct-answer');
-        const questionText = currentQuestions[index].q;
-
-        let resultHtml = '';
-        if (selectedInput && selectedInput.value === correctAnswer) {
-          correctCount++;
-          resultHtml = `
-            <div class="trivia-result-item correct">
-              <b>Pregunta ${index + 1}: ¡Correcto!</b><br>
-              ${questionText}
-            </div>
-          `;
-        } else {
-          resultHtml = `
-            <div class="trivia-result-item incorrect">
-              <b>Pregunta ${index + 1}: Incorrecto.</b><br>
-              <i>Respuesta correcta: ${correctAnswer}</i>
-            </div>
-          `;
-        }
-        $('trivia-results').innerHTML += resultHtml;
-      });
-      
-      $('trivia-results').innerHTML = `<h3>Acertaste ${correctCount} de 5</h3>` + $('trivia-results').innerHTML;
-    }
     /* === FIN DE LÓGICA DE TRIVIA === */
+
 
     /* === INICIO DE LÓGICA DE AR === */
     document.addEventListener('DOMContentLoaded', () => {
+      
       const sceneEl = $('ar-scene');
       const buttonContainer = $('button-container');
       
@@ -694,8 +610,19 @@
       $('trivia-submit').addEventListener('click', checkTriviaAnswers);
     
     }); // <-- Llave de cierre para 'DOMContentLoaded'
+    
     /* === FIN DE LÓGICA DE AR === */
+
+    // JAVASCRIPT PARA EL MENÚ (AÑADIDO)
+    // Va fuera de 'DOMContentLoaded' para que sea una función global
+    function toggleNav() {
+      var nav = document.getElementById("mySidenav");
+      if (nav.style.width === "250px") {
+        nav.style.width = "0";
+      } else {
+        nav.style.width = "250px";
+      }
+    }
   </script>
 </body>
 </html>
-
