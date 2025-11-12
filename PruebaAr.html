@@ -490,7 +490,7 @@
 
   <div id="button-container">
     <button class="action-button" id="animate-button">▶️</button>
-    <button class="action-button" id="button2">📊</button>
+    <button class="action-button" id="estadisticas">📊</button>
     <button class="action-button" id="Trivia">❔</button>
   </div>
   
@@ -847,8 +847,9 @@
         }
       });
 
-      // MODIFICADO: Llamar a showStats en lugar de alert
-      $('button2').addEventListener('click', showStats);
+      // ----- ¡AQUÍ ESTÁ LA CORRECCIÓN! -----
+      // Tu botón se llama 'estadisticas', no 'button2'
+      $('estadisticas').addEventListener('click', showStats);
       
       // Conectar el botón de Trivia a la nueva función
       $('Trivia').addEventListener('click', showTrivia);
