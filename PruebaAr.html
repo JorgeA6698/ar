@@ -596,9 +596,8 @@
       'uzbekistan-texture': { pais: 'Uzbekistán', comida: 'Plov', fundacion: '1991', capital: 'Tashkent', poblacion: '35.6 millones' }
     };
 
-    /* === BASE DE DATOS DE VIDEO (NUEVO) === */
+    /* === BASE DE DATOS DE VIDEO === */
     const videoData = {
-      // Asumo nombres lógicos en minúsculas, excepto el que especificaste
       'argentina-texture': { videoFile: 'argentina.mp4', nombre: 'Argentina' },
       'australia-texture': { videoFile: 'australia.mp4', nombre: 'Australia' },
       'brasil-texture': { videoFile: 'brasil.mp4', nombre: 'Brasil' },
@@ -621,7 +620,6 @@
 
 
     /* === LÓGICA DE TRIVIA (Global) === */
-    // (Tu lógica de trivia está aquí... colapsada por claridad)
     const triviaQuestions = [ { q: "¿En qué año participó Canadá por primera vez en una Copa del Mundo masculina?", a: "1986", options: ["1986", "1994", "1978"] }, { q: "¿Cuál es la mejor posición histórica de EE.UU. en una Copa del Mundo?", a: "Tercer lugar (en 1930)", options: ["Tercer lugar (en 1930)", "Cuartos de final (en 2002)", "Octavos de final (en 1994)"] }, { q: "¿Cuántas veces México ha sido sede de la Copa del Mundo (contando 2026)?", a: "Tres veces", options: ["Tres veces", "Dos veces", "Una vez"] }, { q: "¿Quién es el máximo goleador histórico de Argentina en Mundiales?", a: "Lionel Messi", options: ["Lionel Messi", "Gabriel Batistuta", "Diego Maradona"] }, { q: "¿Qué país, además de Brasil, ha jugado todas las ediciones del Mundial?", a: "Ninguno (Brasil es el único)", options: ["Ninguno (Brasil es el único)", "Alemania", "Italia", "Argentina"] }, { q: "¿Cuál fue el rival de Ecuador en su partido inaugural en Qatar 2022?", a: "Qatar", options: ["Qatar", "Senegal", "Países Bajos"] }, { q: "¿Qué país fue el primer campeón mundial en 1930?", a: "Uruguay", options: ["Uruguay", "Argentina", "Italia"] }, { q: "¿Qué jugador colombiano ganó el Botín de Oro en el Mundial de 2014?", a: "James Rodríguez", options: ["James Rodríguez", "Radamel Falcao", "Thomas Müller"] }, { q: "¿Cuál ha sido la mejor actuación histórica de Paraguay en un Mundial?", a: "Cuartos de final (2010)", options: ["Cuartos de final (2010)", "Octavos de final", "Fase de grupos"] }, { q: "¿Cómo se le conoce popularmente a la selección de Japón?", a: "Samurai Blue", options: ["Samurai Blue", "Los Dragones Azules", "Guerreros del Sol"] }, { q: "¿En qué Mundial logró Irán su primera victoria en la historia del torneo?", a: "Mundial de 1998", options: ["Mundial de 1998", "Mundial de 1978", "Mundial de 2006"] }, { q: "¿Junto a qué país organizó Corea del Sur el Mundial de 2002?", a: "Japón", options: ["Japón", "China", "Tailandia"] }, { q: "¿Qué hito logró Jordania al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Ser anfitrión"] }, { q: "¿Qué hito logró Uzbekistán al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Llegar a semifinales"] }, { q: "¿A qué confederación futbolística pertenece Australia desde 2006?", a: "Asiática (AFC)", options: ["Asiática (AFC)", "Oceanía (OFC)", "UEFA (Europa)"] }, { q: "¿Cuál es el apodo de la selección de Nueva Zelanda?", a: "All Whites", options: ["All Whites", "All Blacks", "Los Kiwis"] }, { q: "¿Qué selección africana fue la primera en llegar a semifinales (en 2022)?", a: "Marruecos", options: ["Marruecos", "Senegal", "Camerún", "Ghana"] }, { q: "¿En qué Mundial, Túnez se convirtió en el primer equipo africano en ganar un partido?", a: "Mundial de 1978", options: ["Mundial de 1978", "Mundial de 1982", "Mundial de 1990"] } ];
     function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
     let currentQuestions = [];
@@ -685,7 +683,7 @@
       $('info-modal').style.display = 'none';
     }
     
-    /* === LÓGICA DE VIDEO (Global - NUEVO) === */
+    /* === LÓGICA DE VIDEO (Global - CORREGIDO) === */
     function showVideo() {
       if (!currentVisibleTarget) return; 
       const targetIndex = parseInt(currentVisibleTarget.split('-')[1]);
@@ -702,7 +700,10 @@
       const videoTitle = $('video-title');
       
       videoTitle.textContent = "Video: " + data.nombre; // Pone el título
-      player.src = data.videoFile; // Asume que los videos están en la misma carpeta
+      
+      // ----- ¡CAMBIO AQUÍ! Se añade la carpeta "videos/" -----
+      player.src = "videos/" + data.videoFile; 
+      
       player.classList.remove('bw-filter'); // Resetea el filtro
       
       $('video-modal').style.display = 'flex'; 
