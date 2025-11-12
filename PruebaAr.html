@@ -556,7 +556,7 @@
       if (el) el.textContent = val;
     };
 
-    /* === BASE DE DATOS DE ESTADÍSTICAS (NUEVO) === */
+    /* === BASE DE DATOS DE ESTADÍSTICAS === */
     const statsData = {
       'argentina-texture': {
         pais: 'Argentina',
@@ -700,8 +700,16 @@
     function showStats() {
       if (!currentVisibleTarget) return; 
       const targetIndex = parseInt(currentVisibleTarget.split('-')[1]);
-      const textureId = getTextureIdForIndex(targetIndex);
+      
+      // ----- ¡CAMBIO 1: MOVER ESTAS LÍNEAS AFUERA! -----
+      // const textureId = getTextureIdForIndex(targetIndex); 
+      // const targetMap = [ ... ];
+      // const getTextureIdForIndex = (index) => { ... };
+      // ----- FIN DEL CAMBIO -----
+
+      const textureId = getTextureIdForIndex(targetIndex); // Ahora 'getTextureIdForIndex' es global
       if (!textureId) return;
+      
       const data = statsData[textureId];
       if (!data) {
          debug('status', 'Error: No hay datos de stats para ' + textureId);
@@ -726,15 +734,10 @@
     /* === FIN DE LÓGICA DE ESTADÍSTICAS === */
 
 
-    /* === INICIO DE LÓGICA DE AR === */
-    document.addEventListener('DOMContentLoaded', () => {
-      
-      const sceneEl = $('ar-scene');
-      const buttonContainer = $('button-container');
-      
-      debug('status', 'Inicializado');
-
-      const targetMap = [
+    // ----- ¡CAMBIO 2: MOVER ESTAS FUNCIONES AQUÍ ARRIBA! -----
+    // Estas variables y funciones AHORA son globales,
+    // para que showStats() pueda usarlas.
+    const targetMap = [
         { start: 0, end: 3, textureId: 'mexico-texture' },       
         { start: 4, end: 6, textureId: 'canada-texture' },       
         { start: 7, end: 9, textureId: 'usa-texture' },          
@@ -753,19 +756,34 @@
         { start: 54, end: 56, textureId: 'coreadelsur-texture' },
         { start: 57, end: 59, textureId: 'uzbekistan-texture' }, 
         { start: 60, end: 63, textureId: 'nuevazelanda-texture' } 
-      ];
+    ];
 
-      // Esta función es usada por showStats()
-      const getTextureIdForIndex = (index) => {
-        for (const map of targetMap) {
-          if (index >= map.start && index <= map.end) return map.textureId;
-        }
-        return null;
-      };
+    // Esta función es usada por showStats() y AHORA es global
+    const getTextureIdForIndex = (index) => {
+      for (const map of targetMap) {
+        if (index >= map.start && index <= map.end) return map.textureId;
+      }
+      return null;
+    };
+    
+    // Esta variable debe ser global para que showStats() la lea
+    let currentVisibleTarget = null;
+    // ----- FIN DEL CAMBIO 2 -----
+
+
+    /* === INICIO DE LÓGICA DE AR === */
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      const sceneEl = $('ar-scene');
+      const buttonContainer = $('button-container');
+      
+      debug('status', 'Inicializado');
+
+      // targetMap y getTextureIdForIndex fueron MOVIDOS ARRIBA
 
       const allTargets = [];
       for (let i = 0; i <= 63; i++) {
-        const textureId = getTextureIdForIndex(i);
+        const textureId = getTextureIdForIndex(i); // Funciona porque ahora es global
         if (!textureId) continue;
 
         const targetEntity = document.createElement('a-entity');
@@ -786,12 +804,12 @@
       }
 
       let isAnimating = false;
-      let currentVisibleTarget = null;
+      // currentVisibleTarget fue MOVIDO ARRIBA
       
       allTargets.forEach((target) => {
         // Evento cuando se ENCUENTRA un target
         target.entity.addEventListener('targetFound', () => {
-          currentVisibleTarget = target.id; 
+          currentVisibleTarget = target.id; // Asigna la variable global
           debug('status', `Target ${target.index} ENCONTRADO`);
           debug('targets', '1');
           debug('buttons', 'VISIBLES');
@@ -804,7 +822,7 @@
         // Evento cuando se PIERDE un target
         target.entity.addEventListener('targetLost', () => {
           if (currentVisibleTarget === target.id) {
-            currentVisibleTarget = null; 
+            currentVisibleTarget = null; // Asigna la variable global
             debug('status', 'Sin target');
             debug('targets', '0');
             debug('buttons', 'ocultos');
@@ -835,7 +853,8 @@
         }
       });
 
-      // ----- ¡CAMBIO 2: CORRECCIÓN DEL ID! -----
+      // ----- ¡CORRECCIÓN FINAL! -----
+      // Tu botón se llama 'estadisticas', no 'button2'
       $('estadisticas').addEventListener('click', showStats);
       
       // Conectar el botón de Trivia
