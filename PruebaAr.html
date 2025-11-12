@@ -278,8 +278,8 @@
       pointer-events: none;
     }
     
-    /* === Estilos para los Modales (Trivia, Stats, Info) === */
-    #trivia-modal, #stats-modal, #info-modal {
+    /* === Estilos para los Modales (Trivia, Stats, Info, Video) === */
+    #trivia-modal, #stats-modal, #info-modal, #video-modal {
       position: fixed;
       top: 0;
       left: 0;
@@ -294,7 +294,7 @@
       box-sizing: border-box;
     }
     
-    .trivia-container, .stats-container, .info-container {
+    .trivia-container, .stats-container, .info-container, .video-container {
       background-color: white;
       border-radius: 10px;
       padding: 20px;
@@ -306,7 +306,7 @@
       position: relative;
     }
     
-    .trivia-close-btn, .stats-close-btn, .info-close-btn {
+    .trivia-close-btn, .stats-close-btn, .info-close-btn, .video-close-btn {
       position: absolute;
       top: 10px;
       right: 15px;
@@ -316,7 +316,7 @@
       cursor: pointer;
       line-height: 1;
     }
-    .trivia-close-btn:hover, .stats-close-btn:hover, .info-close-btn:hover {
+    .trivia-close-btn:hover, .stats-close-btn:hover, .info-close-btn:hover, .video-close-btn:hover {
       color: #000;
     }
     
@@ -386,7 +386,7 @@
     }
 
     /* Estilos específicos de Stats e Info */
-    #stats-content h3, #info-content h3 {
+    #stats-content h3, #info-content h3, #video-content h3 {
        margin-top: 0;
        color: #002868; /* Color del tema */
        border-bottom: 2px solid #eee;
@@ -409,6 +409,34 @@
     #stats-content li strong, #info-content li strong {
       color: #333;
     }
+
+    /* === ESTILOS PARA VIDEO (NUEVO) === */
+    #modal-video-player {
+      width: 100%;
+      border-radius: 5px;
+      background-color: #000;
+    }
+    /* Clase de filtro B/N */
+    .bw-filter {
+      filter: grayscale(100%);
+    }
+    
+    #bw-filter-button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #bw-filter-button:active {
+      background-color: #555;
+    }
+
   </style>
 </head>
 <body>
@@ -441,7 +469,8 @@
   <div id="button-container">
     <button class="action-button" id="animate-button">▶️</button>
     <button class="action-button" id="estadisticas">📊</button>
-    <button class="action-button" id="info">ℹ️</button> <button class="action-button" id="Trivia">❔</button>
+    <button class="action-button" id="info">ℹ️</button> 
+    <button class="action-button" id="video-button">🎥</button> <button class="action-button" id="Trivia">❔</button>
   </div>
   
   <div id="trivia-modal">
@@ -467,6 +496,17 @@
       <span class="info-close-btn" id="info-close">&times;</span>
       <h2>Datos Curiosos</h2>
       <div id="info-content"></div>
+    </div>
+  </div>
+
+  <div id="video-modal">
+    <div class="video-container">
+      <span class="video-close-btn" id="video-close">&times;</span>
+      <div id="video-content">
+        <h3 id="video-title">Video del País</h3>
+        <video id="modal-video-player" controls playsinline></video>
+        <button id="bw-filter-button">Filtro B/N</button>
+      </div>
     </div>
   </div>
 
@@ -556,7 +596,32 @@
       'uzbekistan-texture': { pais: 'Uzbekistán', comida: 'Plov', fundacion: '1991', capital: 'Tashkent', poblacion: '35.6 millones' }
     };
 
+    /* === BASE DE DATOS DE VIDEO (NUEVO) === */
+    const videoData = {
+      // Asumo nombres lógicos en minúsculas, excepto el que especificaste
+      'argentina-texture': { videoFile: 'argentina.mp4', nombre: 'Argentina' },
+      'australia-texture': { videoFile: 'australia.mp4', nombre: 'Australia' },
+      'brasil-texture': { videoFile: 'brasil.mp4', nombre: 'Brasil' },
+      'canada-texture': { videoFile: 'canada.mp4', nombre: 'Canadá' },
+      'colombia-texture': { videoFile: 'colombia.mp4', nombre: 'Colombia' },
+      'coreadelsur-texture': { videoFile: 'coreadelsur.mp4', nombre: 'Corea del Sur' },
+      'ecuador-texture': { videoFile: 'ecuador.mp4', nombre: 'Ecuador' },
+      'usa-texture': { videoFile: 'EUA.mp4', nombre: 'Estados Unidos' }, // Nombre de archivo como especificaste
+      'iran-texture': { videoFile: 'iran.mp4', nombre: 'Irán' },
+      'japon-texture': { videoFile: 'japon.mp4', nombre: 'Japón' },
+      'jordania-texture': { videoFile: 'jordania.mp4', nombre: 'Jordania' },
+      'marruecos-texture': { videoFile: 'marruecos.mp4', nombre: 'Marruecos' }, // Nombre de archivo como especificaste
+      'mexico-texture': { videoFile: 'mexico.mp4', nombre: 'México' },
+      'nuevazelanda-texture': { videoFile: 'nuevazelanda.mp4', nombre: 'Nueva Zelanda' },
+      'paraguay-texture': { videoFile: 'paraguay.mp4', nombre: 'Paraguay' },
+      'tunez-texture': { videoFile: 'tunez.mp4', nombre: 'Túnez' },
+      'uruguay-texture': { videoFile: 'uruguay.mp4', nombre: 'Uruguay' },
+      'uzbekistan-texture': { videoFile: 'uzbekistan.mp4', nombre: 'Uzbekistán' }
+    };
+
+
     /* === LÓGICA DE TRIVIA (Global) === */
+    // (Tu lógica de trivia está aquí... colapsada por claridad)
     const triviaQuestions = [ { q: "¿En qué año participó Canadá por primera vez en una Copa del Mundo masculina?", a: "1986", options: ["1986", "1994", "1978"] }, { q: "¿Cuál es la mejor posición histórica de EE.UU. en una Copa del Mundo?", a: "Tercer lugar (en 1930)", options: ["Tercer lugar (en 1930)", "Cuartos de final (en 2002)", "Octavos de final (en 1994)"] }, { q: "¿Cuántas veces México ha sido sede de la Copa del Mundo (contando 2026)?", a: "Tres veces", options: ["Tres veces", "Dos veces", "Una vez"] }, { q: "¿Quién es el máximo goleador histórico de Argentina en Mundiales?", a: "Lionel Messi", options: ["Lionel Messi", "Gabriel Batistuta", "Diego Maradona"] }, { q: "¿Qué país, además de Brasil, ha jugado todas las ediciones del Mundial?", a: "Ninguno (Brasil es el único)", options: ["Ninguno (Brasil es el único)", "Alemania", "Italia", "Argentina"] }, { q: "¿Cuál fue el rival de Ecuador en su partido inaugural en Qatar 2022?", a: "Qatar", options: ["Qatar", "Senegal", "Países Bajos"] }, { q: "¿Qué país fue el primer campeón mundial en 1930?", a: "Uruguay", options: ["Uruguay", "Argentina", "Italia"] }, { q: "¿Qué jugador colombiano ganó el Botín de Oro en el Mundial de 2014?", a: "James Rodríguez", options: ["James Rodríguez", "Radamel Falcao", "Thomas Müller"] }, { q: "¿Cuál ha sido la mejor actuación histórica de Paraguay en un Mundial?", a: "Cuartos de final (2010)", options: ["Cuartos de final (2010)", "Octavos de final", "Fase de grupos"] }, { q: "¿Cómo se le conoce popularmente a la selección de Japón?", a: "Samurai Blue", options: ["Samurai Blue", "Los Dragones Azules", "Guerreros del Sol"] }, { q: "¿En qué Mundial logró Irán su primera victoria en la historia del torneo?", a: "Mundial de 1998", options: ["Mundial de 1998", "Mundial de 1978", "Mundial de 2006"] }, { q: "¿Junto a qué país organizó Corea del Sur el Mundial de 2002?", a: "Japón", options: ["Japón", "China", "Tailandia"] }, { q: "¿Qué hito logró Jordania al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Ser anfitrión"] }, { q: "¿Qué hito logró Uzbekistán al clasificar para 2026?", a: "Clasificar por primera vez a un Mundial", options: ["Clasificar por primera vez a un Mundial", "Ganar la Copa Asiática", "Llegar a semifinales"] }, { q: "¿A qué confederación futbolística pertenece Australia desde 2006?", a: "Asiática (AFC)", options: ["Asiática (AFC)", "Oceanía (OFC)", "UEFA (Europa)"] }, { q: "¿Cuál es el apodo de la selección de Nueva Zelanda?", a: "All Whites", options: ["All Whites", "All Blacks", "Los Kiwis"] }, { q: "¿Qué selección africana fue la primera en llegar a semifinales (en 2022)?", a: "Marruecos", options: ["Marruecos", "Senegal", "Camerún", "Ghana"] }, { q: "¿En qué Mundial, Túnez se convirtió en el primer equipo africano en ganar un partido?", a: "Mundial de 1978", options: ["Mundial de 1978", "Mundial de 1982", "Mundial de 1990"] } ];
     function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
     let currentQuestions = [];
@@ -598,12 +663,11 @@
       const textureId = getTextureIdForIndex(targetIndex); 
       if (!textureId) return;
       
-      const data = infoData[textureId]; // Use infoData
+      const data = infoData[textureId]; 
       if (!data) {
          debug('status', 'Error: No hay datos de info para ' + textureId);
          return;
       }
-      // --- ESTE ES EL BLOQUE MODIFICADO ---
       const infoHtml = `
         <h3>${data.pais}</h3>
         <ul>
@@ -613,7 +677,6 @@
           <li><strong>Población Aprox:</strong> ${data.poblacion}</li>
         </ul>
       `;
-      // --- FIN DE LA MODIFICACIÓN ---
       
       $('info-content').innerHTML = infoHtml; 
       $('info-modal').style.display = 'flex'; 
@@ -621,7 +684,38 @@
     function hideInfo() {
       $('info-modal').style.display = 'none';
     }
-    /* === FIN DE LÓGICA DE INFO === */
+    
+    /* === LÓGICA DE VIDEO (Global - NUEVO) === */
+    function showVideo() {
+      if (!currentVisibleTarget) return; 
+      const targetIndex = parseInt(currentVisibleTarget.split('-')[1]);
+      const textureId = getTextureIdForIndex(targetIndex); 
+      if (!textureId) return;
+
+      const data = videoData[textureId]; 
+      if (!data) {
+         debug('status', 'Error: No hay video para ' + textureId);
+         return;
+      }
+
+      const player = $('modal-video-player');
+      const videoTitle = $('video-title');
+      
+      videoTitle.textContent = "Video: " + data.nombre; // Pone el título
+      player.src = data.videoFile; // Asume que los videos están en la misma carpeta
+      player.classList.remove('bw-filter'); // Resetea el filtro
+      
+      $('video-modal').style.display = 'flex'; 
+      player.play(); // Reproduce el video
+    }
+    
+    function hideVideo() {
+      const player = $('modal-video-player');
+      player.pause(); // Pausa el video
+      player.src = ""; // Detiene la carga
+      $('video-modal').style.display = 'none';
+    }
+    /* === FIN DE LÓGICA DE VIDEO === */
 
 
     /* === LÓGICA GLOBAL (para que showStats y showInfo funcionen) === */
@@ -736,13 +830,21 @@
       // --- Conexión de todos los botones ---
       $('estadisticas').addEventListener('click', showStats);
       $('Trivia').addEventListener('click', showTrivia);
-      $('info').addEventListener('click', showInfo); // BOTÓN NUEVO
+      $('info').addEventListener('click', showInfo); 
+      $('video-button').addEventListener('click', showVideo); // BOTÓN NUEVO
       
       // --- Cierres de todos los modales ---
       $('trivia-close').addEventListener('click', hideTrivia);
       $('trivia-submit').addEventListener('click', checkTriviaAnswers);
       $('stats-close').addEventListener('click', hideStats);
-      $('info-close').addEventListener('click', hideInfo); // BOTÓN NUEVO
+      $('info-close').addEventListener('click', hideInfo); 
+      $('video-close').addEventListener('click', hideVideo); // BOTÓN NUEVO
+
+      // --- Lógica del filtro B/N (NUEVO) ---
+      $('bw-filter-button').addEventListener('click', () => {
+        const player = $('modal-video-player');
+        player.classList.toggle('bw-filter');
+      });
 
     }); // <-- Llave de cierre para 'DOMContentLoaded'
     
