@@ -534,26 +534,26 @@
       'uzbekistan-texture': { pais: 'Uzbekistán', mundiales: '0', primeraVez: '2026', goles: '0', jugadores: 'Eldor Shomurodov, Server Djeparov' }
     };
 
-    /* === BASE DE DATOS DE INFO (NUEVO) === */
+    /* === BASE DE DATOS DE INFO (ACTUALIZADA) === */
     const infoData = {
-      'argentina-texture': { pais: 'Argentina', comida: 'Asado', fundacion: '1816' },
-      'australia-texture': { pais: 'Australia', comida: 'Meat Pie', fundacion: '1901' },
-      'brasil-texture': { pais: 'Brasil', comida: 'Feijoada', fundacion: '1822' },
-      'canada-texture': { pais: 'Canadá', comida: 'Poutine', fundacion: '1867' },
-      'colombia-texture': { pais: 'Colombia', comida: 'Bandeja Paisa', fundacion: '1810' },
-      'coreadelsur-texture': { pais: 'Corea del Sur', comida: 'Kimchi', fundacion: '1948' },
-      'ecuador-texture': { pais: 'Ecuador', comida: 'Ceviche', fundacion: '1820' },
-      'usa-texture': { pais: 'Estados Unidos', comida: 'Hamburguesa/Apple Pie', fundacion: '1776' },
-      'iran-texture': { pais: 'Irán', comida: 'Chelo Kabab', fundacion: '1979' },
-      'japon-texture': { pais: 'Japón', comida: 'Sushi/Ramen', fundacion: '1868' },
-      'jordania-texture': { pais: 'Jordania', comida: 'Mansaf', fundacion: '1946' },
-      'marruecos-texture': { pais: 'Marruecos', comida: 'Tajine', fundacion: '1956' },
-      'mexico-texture': { pais: 'México', comida: 'Mole', fundacion: '1810' },
-      'nuevazelanda-texture': { pais: 'Nueva Zelanda', comida: 'Hāngi', fundacion: '1907' },
-      'paraguay-texture': { pais: 'Paraguay', comida: 'Sopa Paraguaya', fundacion: '1811' },
-      'tunez-texture': { pais: 'Túnez', comida: 'Cuscús', fundacion: '1956' },
-      'uruguay-texture': { pais: 'Uruguay', comida: 'Chivito', fundacion: '1828' },
-      'uzbekistan-texture': { pais: 'Uzbekistán', comida: 'Plov', fundacion: '1991' }
+      'argentina-texture': { pais: 'Argentina', comida: 'Asado', fundacion: '1816', capital: 'Buenos Aires', poblacion: '46.04 millones' },
+      'australia-texture': { pais: 'Australia', comida: 'Meat Pie', fundacion: '1901', capital: 'Canberra', poblacion: '27.1 millones' },
+      'brasil-texture': { pais: 'Brasil', comida: 'Feijoada', fundacion: '1822', capital: 'Brasilia', poblacion: '203.06 millones' },
+      'canada-texture': { pais: 'Canadá', comida: 'Poutine', fundacion: '1867', capital: 'Ottawa', poblacion: '38.5 millones' },
+      'colombia-texture': { pais: 'Colombia', comida: 'Bandeja Paisa', fundacion: '1810', capital: 'Bogotá', poblacion: '52.08 millones' },
+      'coreadelsur-texture': { pais: 'Corea del Sur', comida: 'Kimchi', fundacion: '1948', capital: 'Seúl', poblacion: '51.7 millones' },
+      'ecuador-texture': { pais: 'Ecuador', comida: 'Ceviche', fundacion: '1820', capital: 'Quito', poblacion: '18.19 millones' },
+      'usa-texture': { pais: 'Estados Unidos', comida: 'Hamburguesa/Apple Pie', fundacion: '1776', capital: 'Washington D.C.', poblacion: '330.66 millones' },
+      'iran-texture': { pais: 'Irán', comida: 'Chelo Kabab', fundacion: '1979', capital: 'Teherán', poblacion: '89.1 millones' },
+      'japon-texture': { pais: 'Japón', comida: 'Sushi/Ramen', fundacion: '1868', capital: 'Tokio', poblacion: '125.1 millones' },
+      'jordania-texture': { pais: 'Jordania', comida: 'Mansaf', fundacion: '1946', capital: 'Amán', poblacion: '11.3 millones' },
+      'marruecos-texture': { pais: 'Marruecos', comida: 'Tajine', fundacion: '1956', capital: 'Rabat', poblacion: '38.0 millones' },
+      'mexico-texture': { pais: 'México', comida: 'Mole', fundacion: '1810', capital: 'Ciudad de México', poblacion: '130.26 millones' },
+      'nuevazelanda-texture': { pais: 'Nueva Zelanda', comida: 'Hāngi', fundacion: '1907', capital: 'Wellington', poblacion: '5.3 millones' },
+      'paraguay-texture': { pais: 'Paraguay', comida: 'Sopa Paraguaya', fundacion: '1811', capital: 'Asunción', poblacion: '7.45 millones' },
+      'tunez-texture': { pais: 'Túnez', comida: 'Cuscús', fundacion: '1956', capital: 'Túnez', poblacion: '12.3 millones' },
+      'uruguay-texture': { pais: 'Uruguay', comida: 'Chivito', fundacion: '1828', capital: 'Montevideo', poblacion: '3.48 millones' },
+      'uzbekistan-texture': { pais: 'Uzbekistán', comida: 'Plov', fundacion: '1991', capital: 'Tashkent', poblacion: '35.6 millones' }
     };
 
     /* === LÓGICA DE TRIVIA (Global) === */
@@ -591,7 +591,7 @@
       $('stats-modal').style.display = 'none';
     }
 
-    /* === LÓGICA DE INFO (Global - NUEVO) === */
+    /* === LÓGICA DE INFO (Global - ACTUALIZADA) === */
     function showInfo() {
       if (!currentVisibleTarget) return; 
       const targetIndex = parseInt(currentVisibleTarget.split('-')[1]);
@@ -603,13 +603,18 @@
          debug('status', 'Error: No hay datos de info para ' + textureId);
          return;
       }
+      // --- ESTE ES EL BLOQUE MODIFICADO ---
       const infoHtml = `
         <h3>${data.pais}</h3>
         <ul>
           <li><strong>Comida Típica:</strong> ${data.comida}</li>
           <li><strong>Fundación (Estado Moderno):</strong> ${data.fundacion}</li>
+          <li><strong>Capital:</strong> ${data.capital}</li>
+          <li><strong>Población Aprox:</strong> ${data.poblacion}</li>
         </ul>
       `;
+      // --- FIN DE LA MODIFICACIÓN ---
+      
       $('info-content').innerHTML = infoHtml; 
       $('info-modal').style.display = 'flex'; 
     }
