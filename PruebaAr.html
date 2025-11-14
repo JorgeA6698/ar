@@ -5,13 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>AR MundiAR 2026</title>
 
-  <!-- Scripts de A-Frame y MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image.prod.js"></script>
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image-aframe.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
 
-  <!-- Componentes Personalizados de A-Frame -->
   <script>
     /* ----- SCRIPT 1: COMPONENTES DE AFRAME (EN HEAD) ----- */
     const animationMixers = new Map();
@@ -95,7 +93,6 @@
     });
   </script>
 
-  <!-- Estilos CSS -->
   <style>
     * {
       -webkit-user-select: none;
@@ -111,19 +108,72 @@
       height: 100vh;
       position: fixed;
       font-family: Arial, sans-serif;
+      background-color: #000; /* Fondo para las barras (si las hay) */
     }
 
-    /* La escena AR (lienzo) va al fondo a pantalla completa */
+    /* --- REORGANIZACIÓN DE CAPAS (Z-INDEX) --- */
+
+    /* Capa 1: El video de la cámara (va hasta atrás) */
+    .mindar-ui-container {
+      z-index: 0 !important;
+    }
+
+    /* Capa 2: La escena 3D (donde aparece la bandera) */
     #ar-scene {
       width: 100%;
       height: 100vh;
       position: fixed;
       top: 0;
       left: 0;
-      z-index: 1; /* La AR va de fondo */
+      z-index: 1; 
+    }
+    
+    /* Regla para que el video y el canvas 3D no se desalineen */
+    /* (Evita el problema de "escanear fuera de la vista") */
+    #ar-scene canvas,
+    .mindar-ui-container video {
+      position: absolute !important;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* 'contain' evita que se recorte la imagen, puede añadir barras negras */
+      object-fit: contain !important; 
     }
 
-    /* --- CSS PARA EL LOGO Y MENÚ --- */
+    /* Capa 3: La UI de escaneo de MindAR */
+    .mindar-ui-overlay {
+      z-index: 2 !important;
+      /* Importante: Hacemos que la UI de escaneo no bloquee los botones */
+      pointer-events: none !important;
+    }
+
+    /* Capa 4: Tus botones (Debug, Home, Botones de acción) */
+    #debug-info,
+    #home-button,
+    #button-container {
+      z-index: 3 !important;
+    }
+    
+    /* Capa 5: Tu UI principal (Logo, Ícono de Menú) */
+    .logo,
+    .menu-icon {
+      z-index: 4 !important;
+    }
+
+    /* Capa 6: El panel de menú lateral (cuando se abre) */
+    .side-nav {
+      z-index: 5 !important;
+    }
+
+    /* Capa 10: Los Modales (Trivia, Stats, etc.) */
+    #trivia-modal, #stats-modal, #info-modal, #video-modal {
+      z-index: 10 !important;
+    }
+    /* --- FIN DE REORGANIZACIÓN DE CAPAS --- */
+
+
+    /* --- Estilos del resto de tu UI (sin cambios de z-index) --- */
     .logo {
       position: fixed;
       top: 20px;
@@ -132,7 +182,6 @@
       font-weight: bold;
       color: white;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-      z-index: 999999; 
       letter-spacing: 1px;
     }
     
@@ -140,7 +189,6 @@
       position: fixed;
       top: 20px;
       right: 20px;
-      z-index: 999999; 
       cursor: pointer;
     }
     
@@ -157,7 +205,6 @@
       height: 100%;
       width: 0; 
       position: fixed;
-      z-index: 999998; 
       top: 0;
       right: 0;
       background-color: rgba(0, 40, 104, 0.95);
@@ -175,17 +222,8 @@
       display: block;
       transition: 0.3s;
     }
-    
-    .side-nav a:hover,
-    .side-nav a:active {
-      color: #FFD700;
-    }
-    
-    .side-nav a.active {
-      color: white;
-      font-weight: bold;
-    }
-    /* --- FIN DE CSS PARA EL LOGO Y MENÚ --- */
+    .side-nav a:hover, .side-nav a:active { color: #FFD700; }
+    .side-nav a.active { color: white; font-weight: bold; }
 
     
     #home-button {
@@ -200,33 +238,22 @@
       display: flex !important;
       align-items: center;
       justify-content: center;
-      z-index: 999997; 
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       transition: transform 0.1s ease;
       text-decoration: none;
       pointer-events: auto !important;
     }
-    
     #home-button:active {
       transform: scale(0.85);
       background-color: #002868;
     }
-    
-    #home-button svg {
-      width: 26px;
-      height: 26px;
-      fill: #002868;
-    }
-    
-    #home-button:active svg {
-      fill: white;
-    }
+    #home-button svg { width: 26px; height: 26px; fill: #002868; }
+    #home-button:active svg { fill: white; }
     
     #button-container {
       position: fixed !important;
       bottom: 15px !important;
       right: 15px !important;
-      z-index: 999997; 
       display: flex !important;
       flex-direction: column !important;
       gap: 10px;
@@ -249,22 +276,17 @@
       transition: transform 0.1s ease;
       touch-action: manipulation;
     }
-
     .action-button:active {
       background-color: #002868;
       transform: scale(0.85);
       color: white;
     }
-
     #animate-button {
       background-color: rgba(0, 200, 0, 0.95);
       border-color: #006400;
       color: white;
     }
-
-    #animate-button:active {
-      background-color: #006400;
-    }
+    #animate-button:active { background-color: #006400; }
     
     #debug-info {
       position: fixed;
@@ -276,7 +298,6 @@
       border-radius: 5px;
       font-family: monospace;
       font-size: 11px;
-      z-index: 999997;
       max-width: 200px;
       pointer-events: none;
     }
@@ -289,8 +310,7 @@
       width: 100%;
       height: 100%;
       background-color: rgba(0, 0, 0, 0.6);
-      z-index: 1000000;
-      display: none; /* Oculto por defecto */
+      display: none; 
       justify-content: center;
       align-items: center;
       padding: 10px;
@@ -324,83 +344,29 @@
     }
     
     /* Estilos específicos de Trivia */
-    .trivia-question {
-      margin-bottom: 20px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 15px;
-    }
-    .trivia-question h3 {
-      font-size: 16px;
-      margin: 0 0 10px 0;
-      color: #333;
-    }
-    .trivia-options label {
-      display: block;
-      background-color: #f4f4f4;
-      padding: 10px;
-      border-radius: 5px;
-      margin-bottom: 5px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.2s;
-    }
-    .trivia-options label:hover {
-      background-color: #e9e9e9;
-    }
-    .trivia-options input {
-      margin-right: 10px;
-    }
-    
-    #trivia-submit {
-      width: 100%;
-      padding: 12px;
-      background-color: #002868;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    #trivia-submit:hover {
-      background-color: #001a4a;
-    }
-    
-    #trivia-results {
-      margin-top: 20px;
-    }
-    .trivia-result-item {
-      padding: 10px;
-      border-radius: 5px;
-      margin-bottom: 10px;
-      font-size: 14px;
-      border: 1px solid;
-    }
-    .trivia-result-item.correct {
-      background-color: #dff0d8;
-      border-color: #d6e9c6;
-      color: #3c763d;
-    }
-    .trivia-result-item.incorrect {
-      background-color: #f2dede;
-      border-color: #ebccd1;
-      color: #a94442;
-    }
+    .trivia-question { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+    .trivia-question h3 { font-size: 16px; margin: 0 0 10px 0; color: #333; }
+    .trivia-options label { display: block; background-color: #f4f4f4; padding: 10px; border-radius: 5px; margin-bottom: 5px; cursor: pointer; font-size: 14px; transition: background-color 0.2s; }
+    .trivia-options label:hover { background-color: #e9e9e9; }
+    .trivia-options input { margin-right: 10px; }
+    #trivia-submit { width: 100%; padding: 12px; background-color: #002868; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
+    #trivia-submit:hover { background-color: #001a4a; }
+    #trivia-results { margin-top: 20px; }
+    .trivia-result-item { padding: 10px; border-radius: 5px; margin-bottom: 10px; font-size: 14px; border: 1px solid; }
+    .trivia-result-item.correct { background-color: #dff0d8; border-color: #d6e9c6; color: #3c763d; }
+    .trivia-result-item.incorrect { background-color: #f2dede; border-color: #ebccd1; color: #a94442; }
 
     /* Estilos específicos de Stats e Info */
     #stats-content h3, #info-content h3, #video-content h3 {
        margin-top: 0;
-       color: #002868; /* Color del tema */
+       color: #002868; 
        border-bottom: 2px solid #eee;
        padding-bottom: 10px;
     }
-    
     #stats-content ul, #info-content ul {
       list-style-type: none;
       padding-left: 0;
     }
-    
     #stats-content li, #info-content li {
       background-color: #f4f4f4;
       padding: 10px;
@@ -408,37 +374,32 @@
       margin-bottom: 5px;
       font-size: 14px;
     }
-    
-    #stats-content li strong, #info-content li strong {
-      color: #333;
-    }
+    #stats-content li strong, #info-content li strong { color: #333; }
 
-    /* === ESTILOS PARA VIDEO (MODIFICADO) === */
+    /* === ESTILOS PARA VIDEO === */
     #modal-video-player {
       width: 100%;
       border-radius: 5px;
       background-color: #000;
-      /* Transición suave entre filtros */
       transition: filter 0.3s ease; 
     }
     
-    /* Clases de Filtro (NUEVO) */
+    /* Clases de Filtro */
     #modal-video-player.filter-bw { filter: grayscale(100%); }
     #modal-video-player.filter-sepia { filter: sepia(100%); }
     #modal-video-player.filter-warm { filter: sepia(40%) contrast(110%) brightness(105%) saturate(120%); }
-    #modal-video-player.filter-cold { filter: contrast(110%) brightness(105%) hue-rotate(200deg); } /* Ajustado para frío */
+    #modal-video-player.filter-cold { filter: contrast(110%) brightness(105%) hue-rotate(200deg); } 
     #modal-video-player.filter-none { filter: none; }
 
-    /* Controles de Filtro (NUEVO) */
+    /* Controles de Filtro */
     #filter-controls {
       display: flex;
       justify-content: space-between;
       gap: 5px;
       margin-top: 10px;
     }
-    
     .filter-btn {
-      flex-grow: 1; /* Para que compartan el espacio */
+      flex-grow: 1; 
       padding: 8px 5px;
       background-color: #f0f0f0;
       color: #333;
@@ -449,19 +410,15 @@
       cursor: pointer;
       transition: background-color 0.2s, color 0.2s;
     }
-    
-    /* Estilo del botón activo */
     .filter-btn.active, .filter-btn:active {
-      background-color: #002868; /* Color del tema */
+      background-color: #002868; 
       color: white;
       border-color: #002868;
     }
-
   </style>
 </head>
 <body>
 
-  <!-- HTML del Logo y Menú -->
   <div class="logo">MundiAR</div>
   <div class="menu-icon" onclick="toggleNav()">
     <div class="bar"></div>
@@ -475,7 +432,6 @@
     <a href="PruebaAr.html" class="active">AR</a>
   </div>
   
-  <!-- HTML de la UI (Debug, Botones) -->
   <div id="debug-info">
     <div>Status: <span id="d-status">Cargando...</span></div>
     <div>Targets: <span id="d-targets">0</span></div>
@@ -488,7 +444,6 @@
     </svg>
   </a>
 
-  <!-- Contenedor de Botones de Acción -->
   <div id="button-container">
     <button class="action-button" id="animate-button">▶️</button>
     <button class="action-button" id="estadisticas">📊</button>
@@ -497,7 +452,6 @@
     <button class="action-button" id="Trivia">❔</button>
   </div>
   
-  <!-- Modal de Trivia -->
   <div id="trivia-modal">
     <div class="trivia-container">
       <span class="trivia-close-btn" id="trivia-close">&times;</span>
@@ -508,7 +462,6 @@
     </div>
   </div>
 
-  <!-- Modal de Estadísticas -->
   <div id="stats-modal">
     <div class="stats-container">
       <span class="stats-close-btn" id="stats-close">&times;</span>
@@ -517,7 +470,6 @@
     </div>
   </div>
 
-  <!-- Modal de Info -->
   <div id="info-modal">
     <div class="info-container">
       <span class="info-close-btn" id="info-close">&times;</span>
@@ -526,7 +478,6 @@
     </div>
   </div>
 
-  <!-- Modal de Video (MODIFICADO) -->
   <div id="video-modal">
     <div class="video-container">
       <span class="video-close-btn" id="video-close">&times;</span>
@@ -534,7 +485,6 @@
         <h3 id="video-title">Video del País</h3>
         <video id="modal-video-player" controls playsinline></video>
         
-        <!-- Controles de Filtro (NUEVO) -->
         <div id="filter-controls">
           <button class="filter-btn active" data-filter="none">Normal</button>
           <button class="filter-btn" data-filter="bw">B/N</button>
@@ -546,10 +496,11 @@
     </div>
   </div>
 
-  <!-- La Escena AR (el "canvas" que renderiza la cámara y el 3D) -->
   <a-scene
     id="ar-scene"
-    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
+    
+    mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1; warmupTolerance: 30; uiLoading: yes; uiScanning: yes;"
+    
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false"
     embedded
@@ -881,7 +832,7 @@
       $('info-close').addEventListener('click', hideInfo); 
       $('video-close').addEventListener('click', hideVideo); 
 
-      // --- Lógica del filtro B/N (MODIFICADA) ---
+      // --- Lógica del filtro (MODIFICADA) ---
       const filterButtons = document.querySelectorAll('.filter-btn');
       const player = $('modal-video-player');
       const filterClasses = ['filter-none', 'filter-bw', 'filter-sepia', 'filter-warm', 'filter-cold'];
