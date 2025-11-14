@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>AR MundiAR 2026</title>
 
+  <!-- Scripts de A-Frame y MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image.prod.js"></script>
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image-aframe.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
 
+  <!-- Componentes Personalizados de A-Frame -->
   <script>
     /* ----- SCRIPT 1: COMPONENTES DE AFRAME (EN HEAD) ----- */
     const animationMixers = new Map();
@@ -93,6 +95,7 @@
     });
   </script>
 
+  <!-- Estilos CSS -->
   <style>
     * {
       -webkit-user-select: none;
@@ -410,37 +413,55 @@
       color: #333;
     }
 
-    /* === ESTILOS PARA VIDEO (NUEVO) === */
+    /* === ESTILOS PARA VIDEO (MODIFICADO) === */
     #modal-video-player {
       width: 100%;
       border-radius: 5px;
       background-color: #000;
-    }
-    /* Clase de filtro B/N */
-    .bw-filter {
-      filter: grayscale(100%);
+      /* Transición suave entre filtros */
+      transition: filter 0.3s ease; 
     }
     
-    #bw-filter-button {
-      width: 100%;
-      padding: 10px;
+    /* Clases de Filtro (NUEVO) */
+    #modal-video-player.filter-bw { filter: grayscale(100%); }
+    #modal-video-player.filter-sepia { filter: sepia(100%); }
+    #modal-video-player.filter-warm { filter: sepia(40%) contrast(110%) brightness(105%) saturate(120%); }
+    #modal-video-player.filter-cold { filter: contrast(110%) brightness(105%) hue-rotate(200deg); } /* Ajustado para frío */
+    #modal-video-player.filter-none { filter: none; }
+
+    /* Controles de Filtro (NUEVO) */
+    #filter-controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 5px;
       margin-top: 10px;
-      background-color: #333;
-      color: white;
-      border: none;
+    }
+    
+    .filter-btn {
+      flex-grow: 1; /* Para que compartan el espacio */
+      padding: 8px 5px;
+      background-color: #f0f0f0;
+      color: #333;
+      border: 1px solid #ccc;
       border-radius: 5px;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: bold;
       cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
     }
-    #bw-filter-button:active {
-      background-color: #555;
+    
+    /* Estilo del botón activo */
+    .filter-btn.active, .filter-btn:active {
+      background-color: #002868; /* Color del tema */
+      color: white;
+      border-color: #002868;
     }
 
   </style>
 </head>
 <body>
 
+  <!-- HTML del Logo y Menú -->
   <div class="logo">MundiAR</div>
   <div class="menu-icon" onclick="toggleNav()">
     <div class="bar"></div>
@@ -454,6 +475,7 @@
     <a href="PruebaAr.html" class="active">AR</a>
   </div>
   
+  <!-- HTML de la UI (Debug, Botones) -->
   <div id="debug-info">
     <div>Status: <span id="d-status">Cargando...</span></div>
     <div>Targets: <span id="d-targets">0</span></div>
@@ -466,13 +488,16 @@
     </svg>
   </a>
 
+  <!-- Contenedor de Botones de Acción -->
   <div id="button-container">
     <button class="action-button" id="animate-button">▶️</button>
     <button class="action-button" id="estadisticas">📊</button>
     <button class="action-button" id="info">ℹ️</button> 
-    <button class="action-button" id="video-button">🎥</button> <button class="action-button" id="Trivia">❔</button>
+    <button class="action-button" id="video-button">🎥</button>
+    <button class="action-button" id="Trivia">❔</button>
   </div>
   
+  <!-- Modal de Trivia -->
   <div id="trivia-modal">
     <div class="trivia-container">
       <span class="trivia-close-btn" id="trivia-close">&times;</span>
@@ -483,6 +508,7 @@
     </div>
   </div>
 
+  <!-- Modal de Estadísticas -->
   <div id="stats-modal">
     <div class="stats-container">
       <span class="stats-close-btn" id="stats-close">&times;</span>
@@ -491,6 +517,7 @@
     </div>
   </div>
 
+  <!-- Modal de Info -->
   <div id="info-modal">
     <div class="info-container">
       <span class="info-close-btn" id="info-close">&times;</span>
@@ -499,17 +526,27 @@
     </div>
   </div>
 
+  <!-- Modal de Video (MODIFICADO) -->
   <div id="video-modal">
     <div class="video-container">
       <span class="video-close-btn" id="video-close">&times;</span>
       <div id="video-content">
         <h3 id="video-title">Video del País</h3>
         <video id="modal-video-player" controls playsinline></video>
-        <button id="bw-filter-button">Filtro B/N</button>
+        
+        <!-- Controles de Filtro (NUEVO) -->
+        <div id="filter-controls">
+          <button class="filter-btn active" data-filter="none">Normal</button>
+          <button class="filter-btn" data-filter="bw">B/N</button>
+          <button class="filter-btn" data-filter="sepia">Sepia</button>
+          <button class="filter-btn" data-filter="warm">Cálido</button>
+          <button class="filter-btn" data-filter="cold">Frío</button>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- La Escena AR (el "canvas" que renderiza la cámara y el 3D) -->
   <a-scene
     id="ar-scene"
     mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no"
@@ -605,7 +642,7 @@
       'colombia-texture': { videoFile: 'colombia.mp4', nombre: 'Colombia' },
       'coreadelsur-texture': { videoFile: 'coreadelsur.mp4', nombre: 'Corea del Sur' },
       'ecuador-texture': { videoFile: 'ecuador.mp4', nombre: 'Ecuador' },
-      'usa-texture': { videoFile: 'EUA.mp4', nombre: 'Estados Unidos' },
+      'usa-texture': { videoFile: 'EUA.mp4', nombre: 'Estados Unidos' }, 
       'iran-texture': { videoFile: 'iran.mp4', nombre: 'Irán' },
       'japon-texture': { videoFile: 'japon.mp4', nombre: 'Japón' },
       'jordania-texture': { videoFile: 'jordania.mp4', nombre: 'Jordania' },
@@ -663,7 +700,7 @@
       
       const data = infoData[textureId]; 
       if (!data) {
-         debug('status', 'Error: No hay datos de info para ' + textureId);
+         debug('status', 'Error: No hay datos de info para 'D + textureId);
          return;
       }
       const infoHtml = `
@@ -683,7 +720,7 @@
       $('info-modal').style.display = 'none';
     }
     
-    /* === LÓGICA DE VIDEO (Global - CORREGIDO) === */
+    /* === LÓGICA DE VIDEO (Global) === */
     function showVideo() {
       if (!currentVisibleTarget) return; 
       const targetIndex = parseInt(currentVisibleTarget.split('-')[1]);
@@ -699,21 +736,24 @@
       const player = $('modal-video-player');
       const videoTitle = $('video-title');
       
-      videoTitle.textContent = "Video: " + data.nombre; // Pone el título
-      
-      // ----- ¡CAMBIO AQUÍ! Se añade la carpeta "videos/" -----
+      videoTitle.textContent = "Video: " + data.nombre; 
       player.src = "videos/" + data.videoFile; 
       
-      player.classList.remove('bw-filter'); // Resetea el filtro
-      
+      // Resetea filtros al abrir
+      const filterClasses = ['filter-bw', 'filter-sepia', 'filter-warm', 'filter-cold'];
+      player.classList.remove(...filterClasses);
+      player.classList.add('filter-none');
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelector('.filter-btn[data-filter="none"]').classList.add('active');
+
       $('video-modal').style.display = 'flex'; 
-      player.play(); // Reproduce el video
+      player.play(); 
     }
     
     function hideVideo() {
       const player = $('modal-video-player');
-      player.pause(); // Pausa el video
-      player.src = ""; // Detiene la carga
+      player.pause(); 
+      player.src = ""; 
       $('video-modal').style.display = 'none';
     }
     /* === FIN DE LÓGICA DE VIDEO === */
@@ -832,20 +872,40 @@
       $('estadisticas').addEventListener('click', showStats);
       $('Trivia').addEventListener('click', showTrivia);
       $('info').addEventListener('click', showInfo); 
-      $('video-button').addEventListener('click', showVideo); // BOTÓN NUEVO
+      $('video-button').addEventListener('click', showVideo); 
       
       // --- Cierres de todos los modales ---
       $('trivia-close').addEventListener('click', hideTrivia);
       $('trivia-submit').addEventListener('click', checkTriviaAnswers);
       $('stats-close').addEventListener('click', hideStats);
       $('info-close').addEventListener('click', hideInfo); 
-      $('video-close').addEventListener('click', hideVideo); // BOTÓN NUEVO
+      $('video-close').addEventListener('click', hideVideo); 
 
-      // --- Lógica del filtro B/N (NUEVO) ---
-      $('bw-filter-button').addEventListener('click', () => {
-        const player = $('modal-video-player');
-        player.classList.toggle('bw-filter');
+      // --- Lógica del filtro B/N (MODIFICADA) ---
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      const player = $('modal-video-player');
+      const filterClasses = ['filter-none', 'filter-bw', 'filter-sepia', 'filter-warm', 'filter-cold'];
+
+      filterButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+          const filterValue = e.currentTarget.dataset.filter;
+
+          // 1. Quitar filtros viejos del video
+          player.classList.remove(...filterClasses);
+          
+          // 2. Añadir filtro nuevo al video
+          if (filterValue !== 'none') {
+            player.classList.add('filter-' + filterValue);
+          }
+
+          // 3. Quitar 'active' de todos los botones
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          
+          // 4. Añadir 'active' al botón clickeado
+          e.currentTarget.classList.add('active');
+        });
       });
+      // --- FIN DE NUEVA LÓGICA DE FILTROS ---
 
     }); // <-- Llave de cierre para 'DOMContentLoaded'
     
